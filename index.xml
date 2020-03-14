@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Attitude is altitude</title>
-    <link>https://godeamon.github.io/</link>
+    <link>https://godeamon.com/</link>
     <description>Attitude is altitude</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 14 Mar 2020 15:12:41 +0800</lastBuildDate>
     
-    <atom:link href="https://godeamon.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://godeamon.com/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>About Me</title>
-      <link>https://godeamon.github.io/post/about-me/</link>
+      <link>https://godeamon.com/post/about-me/</link>
       <pubDate>Sat, 14 Mar 2020 15:12:41 +0800</pubDate>
       
-      <guid>https://godeamon.github.io/post/about-me/</guid>
+      <guid>https://godeamon.com/post/about-me/</guid>
       <description>&lt;h1 id=&#34;我&#34;&gt;我&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;毕业于北华大学。&lt;/li&gt;
