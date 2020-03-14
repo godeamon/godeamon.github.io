@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Anubis</title>
+    <title>Attitude is altitude</title>
     <link>https://godeamon.github.io/</link>
-    <description>Anubis</description>
+    <description>Attitude is altitude</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <lastBuildDate>Sat, 14 Mar 2020 15:12:41 +0800</lastBuildDate>
     
     <atom:link href="https://godeamon.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>About Me</title>
+      <link>https://godeamon.github.io/post/about-me/</link>
+      <pubDate>Sat, 14 Mar 2020 15:12:41 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/about-me/</guid>
+      <description>&lt;h1 id=&#34;我&#34;&gt;我&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;毕业于北华大学。&lt;/li&gt;
+&lt;li&gt;现就职北京一家区块链公司。&lt;/li&gt;
+&lt;li&gt;热爱 Go 语言，热爱分享，热爱开源。&lt;/li&gt;
+&lt;li&gt;email：rayforce.lee@gmail.com&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;计划&#34;&gt;计划&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;TODO&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
   </channel>
 </rss>
