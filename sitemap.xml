@@ -3,26 +3,41 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://godeamon.com/post/about-me/</loc>
+    <loc>https://godeamon.github.io/</loc>
+    <lastmod>2020-04-06T10:48:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/</loc>
+    <lastmod>2020-04-06T10:48:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/reading/</loc>
+    <lastmod>2020-04-06T10:48:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/plan/</loc>
+    <lastmod>2020-04-06T10:41:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/go-modules/</loc>
+    <lastmod>2020-03-14T23:06:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/about-me/</loc>
     <lastmod>2020-03-14T15:12:41+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://godeamon.com/</loc>
-    <lastmod>2020-03-14T15:12:41+08:00</lastmod>
+    <loc>https://godeamon.github.io/categories/</loc>
   </url>
   
   <url>
-    <loc>https://godeamon.com/post/</loc>
-    <lastmod>2020-03-14T15:12:41+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.com/categories/</loc>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.com/tags/</loc>
+    <loc>https://godeamon.github.io/tags/</loc>
   </url>
   
 </urlset>
