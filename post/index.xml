@@ -12,30 +12,6 @@
     
     
     <item>
-      <title>Reading</title>
-      <link>https://godeamon.github.io/post/reading/</link>
-      <pubDate>Mon, 06 Apr 2020 10:48:25 +0800</pubDate>
-      
-      <guid>https://godeamon.github.io/post/reading/</guid>
-      <description>&lt;p&gt;READING&lt;/p&gt;
-&lt;p&gt;阅读中&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&amp;laquo;Unix 编程艺术&amp;raquo; 5%，好书。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&amp;laquo;架构整洁之道&amp;raquo; 80%，如果你是架构，可以帮助你设计结构，如果你是执行者，帮助你理解架构。&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;已完成&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&amp;laquo;操作系统导论&amp;raquo; 100%，打牢基础。属于内功吧。&lt;/li&gt;
-&lt;li&gt;&amp;laquo;代码大全&amp;raquo; 100%，很多示例代码，有助于搬砖。&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Plan</title>
       <link>https://godeamon.github.io/post/plan/</link>
       <pubDate>Mon, 06 Apr 2020 10:41:03 +0800</pubDate>
@@ -66,6 +42,30 @@
 &lt;h2 id=&#34;架构&#34;&gt;架构&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;如何设计缓存系统&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Reading</title>
+      <link>https://godeamon.github.io/post/reading/</link>
+      <pubDate>Mon, 06 Apr 2020 10:48:25 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/reading/</guid>
+      <description>&lt;p&gt;READING&lt;/p&gt;
+&lt;p&gt;阅读中&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&amp;laquo;Unix 编程艺术&amp;raquo; 5%，好书。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&amp;laquo;架构整洁之道&amp;raquo; 80%，如果你是架构，可以帮助你设计结构，如果你是执行者，帮助你理解架构。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;已完成&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&amp;laquo;操作系统导论&amp;raquo; 100%，打牢基础。属于内功吧。&lt;/li&gt;
+&lt;li&gt;&amp;laquo;代码大全&amp;raquo; 100%，很多示例代码，有助于搬砖。&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

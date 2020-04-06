@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>plan on Attitude is altitude</title>
+    <link>https://godeamon.github.io/tags/plan/</link>
+    <description>Attitude is altitude (plan)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 06 Apr 2020 10:41:03 +0800</lastBuildDate>
+    
+    <atom:link href="https://godeamon.github.io/tags/plan/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Plan</title>
+      <link>https://godeamon.github.io/post/plan/</link>
+      <pubDate>Mon, 06 Apr 2020 10:41:03 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/plan/</guid>
+      <description>&lt;h1 id=&#34;go-语言相关学习计划&#34;&gt;Go 语言相关学习计划&lt;/h1&gt;
+&lt;p&gt;暂定自学路线&lt;/p&gt;
+&lt;h2 id=&#34;go-源码&#34;&gt;Go 源码&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Go runtime&lt;/li&gt;
+&lt;li&gt;Go mem&lt;/li&gt;
+&lt;li&gt;Go map, chan, slice and so on source code&lt;/li&gt;
+&lt;li&gt;Go epoll&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;其他项目源码&#34;&gt;其他项目源码&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;etcd&lt;/li&gt;
+&lt;li&gt;docker&lt;/li&gt;
+&lt;li&gt;ethereum&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;基础&#34;&gt;基础&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;操作系统&lt;/li&gt;
+&lt;li&gt;linux&lt;/li&gt;
+&lt;li&gt;数据结构&lt;/li&gt;
+&lt;li&gt;算法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;架构&#34;&gt;架构&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;如何设计缓存系统&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
