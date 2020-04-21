@@ -17,14 +17,14 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1586149133" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587479337" />
 
 <meta property="og:title" content="Attitude is altitude" />
 <meta property="og:description" content="区块链、Go" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://godeamon.github.io/" />
 <meta property="og:image" content="https://godeamon.github.io/images/og-featured.png"/>
-<meta property="og:updated_time" content="2020-04-06T10:48:25+08:00" />
+<meta property="og:updated_time" content="2020-04-18T11:32:30+08:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://godeamon.github.io/images/og-featured.png"/>
@@ -97,8 +97,34 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
                     
                 </ul>
         
-    </div>
 </div>
+
+    </article>
+    
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="/post/go-slice/">Go Slice</a>
+            </h1>
+        </header>
+
+        <div class="content">
+            1.切片是啥 ​	Go 的 **Slice（切片）**类型提供了一种方便有效的方法来处理类型化数据序列。 slice 与其他语言的数组类似却又不同，简单来说，切片更加灵活，用起来更方便，其原因就是可以扩容。
+2.举例分析 2.1. 认识切片第一步 package main import &#34;fmt&#34; func main() { sliceExample() } func sliceExample() { slc := make([]int, 0) slc = append(slc, 1) fmt.Println(slc) var slc1 []int slc1 = append(slc1, 1) fmt.Println(slc1) var slc2 []int slc2 = append(slc2, 1) fmt.Println(slc2) } 上面的代码是最基本的使用方式，首先看一下上面的代码在底层都做了哪些东西（不要害怕汇编，其实很简单，我们主要明白部分汇编代码即可）
+命令：go tool compile -S slice.go 我的 go 文件为 slice.go
+&quot;&quot;.main STEXT size=48 args=0x0 locals=0x8 0x0000 00000 (slice.go:5)	TEXT	&quot;&quot;.main(SB), ABIInternal, $8-0 .
+        </div>
+
+        
+        <div class="article-info">
+    
+        <div class="article-date">2020-04-18</div>
+    
+    <div class="article-taxonomies">
+        
+            
+</div>
+
     </article>
     
     <article class="post-list">
@@ -125,8 +151,8 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
     <div class="article-taxonomies">
         
             
-    </div>
 </div>
+
     </article>
     
     <article class="post-list">
@@ -150,8 +176,8 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
     <div class="article-taxonomies">
         
             
-    </div>
 </div>
+
     </article>
     
     <article class="post-list">
@@ -162,7 +188,26 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
         </header>
 
         <div class="content">
-            我  毕业于北华大学。 现就职北京一家区块链公司。 热爱 Go 语言，热爱分享，热爱开源。 email：rayforce.lee@gmail.com  计划  TODO  
+            我   毕业于北华大学。
+  现就职北京一家区块链公司。
+  热爱 Go 语言，热爱分享，热爱开源。
+  email：rayforce.lee@gmail.com
+  毕业于北华大学。
+  现就职北京一家区块链公司。
+  热爱 Go 语言，热爱分享，热爱开源。
+  email：rayforce.lee@gmail.com
+  毕业于北华大学。
+  现就职北京一家区块链公司。
+  热爱 Go 语言，热爱分享，热爱开源。
+  email：rayforce.lee@gmail.com
+  毕业于北华大学。
+  现就职北京一家区块链公司。
+  热爱 Go 语言，热爱分享，热爱开源。
+  email：rayforce.lee@gmail.com
+  毕业于北华大学。
+  现就职北京一家区块链公司。
+  热爱 Go 语言，热爱分享，热爱开源。
+  email：rayforce.
         </div>
 
         
@@ -173,8 +218,8 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
     <div class="article-taxonomies">
         
             
-    </div>
 </div>
+
     </article>
     
     
