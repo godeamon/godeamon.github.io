@@ -16,7 +16,7 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587479741" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587709295" />
 
 <meta property="og:title" content="Go Slice" />
 <meta property="og:description" content="1.切片是啥 ​	Go 的 **Slice（切片）**类型提供了一种方便有效的方法来处理类型化数据序列。 slice 与其他语言的数组类似却又不同，简单来说，切片更加灵活，用起来更方便，其原因就是可以扩容。
@@ -281,7 +281,8 @@ fmt.Println(slc2)
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// 结果：len=5, cap=6
 </span></code></pre></div><p>其原因是元素类型所占的内存大小是不一样的，从而导致 <code>append</code> 操作时进行 <strong>内存对齐</strong> 的结果也不一样（内存对齐这里不再赘述，以后有时间也会写类似文章）。所以我们上面三种代码最终的结果都是不同的。</p>
 <p>结论：在 appen 单个元素时，扩容规律确实是2倍或者1.25倍，但是appen 多个元素时，结果和元素类型是相关的，容量最小和长度相同。</p>
-<p>同时我们还要注意的是，扩容时如果容量大于原有数据的长度，我们重新分配内存，其操作不会影响原有的数据。但是没有分配新的内存，也就是说还是原来数组的基础上添加元素，那么新的切片操作就会影响原有的数组。这部分依然不再赘述，看一下下面代码，大家都明白了：</p>
+<h2 id="25-切片截取">2.5. 切片截取</h2>
+<p>我们还要注意的是，扩容时如果容量大于原有数据的长度，我们重新分配内存，其操作不会影响原有的数据。但是没有分配新的内存，也就是说还是原来数组的基础上添加元素，那么新的切片操作就会影响原有的数组。这部分依然不再赘述，看一下下面代码，大家都明白了：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>}
 <span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">2</span>]
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d\n&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// len=4, cap=4
@@ -304,7 +305,19 @@ fmt.Println(slc2)
 </span><span style="color:#75715e"></span><span style="color:#a6e22e">s1</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">7</span>
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// [1 6 1 4]
 </span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>) <span style="color:#75715e">// [7 1 1 2 3]
-</span></code></pre></div><p>切片暂时告一段落，最后总结一下：</p>
+</span></code></pre></div><p>另外还有一点，切片截取也是可以截取 cap 的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>}
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d\n&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// len=4, cap=4
+</span><span style="color:#75715e"></span>	
+<span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">2</span>:<span style="color:#ae81ff">3</span>]
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d\n&#34;</span>, len(<span style="color:#a6e22e">s1</span>), cap(<span style="color:#a6e22e">s1</span>)) <span style="color:#75715e">// len=1, cap=2
+</span><span style="color:#75715e"></span>	
+<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">2</span>]
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d\n&#34;</span>, len(<span style="color:#a6e22e">s2</span>), cap(<span style="color:#a6e22e">s2</span>)) <span style="color:#75715e">// len=1, cap=3
+</span></code></pre></div><h2 id="26-传递">2.6. 传递</h2>
+<p>Go 语言函数参数都是值传递，在函数内部会拷贝一份，所以 slice 传递后拷贝一份都是新的 slice，但是 map 这种初始化之后就是一个 *hmap，所以参数传递后还是指向同一个 map（map 以后再详解）。</p>
+<h2 id="27-总结">2.7. 总结</h2>
+<p>切片暂时告一段落，最后总结一下：</p>
 <ul>
 <li>切片是对数组的封装，切片可以自动扩容。</li>
 <li>切片添加后，新的容量小于之前的容量，那么还是使用原有的数组，并且两者之间的元素修改有影响，因为底层是同一块内存。</li>
