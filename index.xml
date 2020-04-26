@@ -291,9 +291,34 @@ fmt.Println(slc2)
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	
 &lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;]
 &lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;len=%d, cap=%d\n&amp;#34;&lt;/span&gt;, len(&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt;), cap(&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt;)) &lt;span style=&#34;color:#75715e&#34;&gt;// len=1, cap=3
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;26-传递&#34;&gt;2.6. 传递&lt;/h2&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;26-拷贝&#34;&gt;2.6. 拷贝&lt;/h2&gt;
+&lt;p&gt;切片的拷贝可以使用内置 copy 函数：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;{&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;
+copy(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// []
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2 3 4]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt; = make([]&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;count&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; copy(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2 3 4]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;count&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// 2
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] = &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [5 2]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2 3 4]
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面的例子可以看出来，copy 只会拷贝目标切片长度个元素，并且 copy 后两个切片是没有影响的。&lt;/p&gt;
+&lt;p&gt;还有一种更加高效的实现方式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; append(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;[:&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2 3 4]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt;[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] = &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s2&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [5 2 3 4]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// [1 2 3 4]
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面这种方式算是一个比较取巧的方法，并且可以达到 copy 的效果，并且速度要比 copy 快很多。需要注意的是第一行中 cap 的下标是一定要写的，并且建议写0，这样效率是最高的。&lt;/p&gt;
+&lt;h2 id=&#34;27-传递&#34;&gt;2.7. 传递&lt;/h2&gt;
 &lt;p&gt;Go 语言函数参数都是值传递，在函数内部会拷贝一份，所以 slice 传递后拷贝一份都是新的 slice，但是 map 这种初始化之后就是一个 *hmap，所以参数传递后还是指向同一个 map（map 以后再详解）。&lt;/p&gt;
-&lt;h2 id=&#34;27-总结&#34;&gt;2.7. 总结&lt;/h2&gt;
+&lt;h2 id=&#34;28-总结&#34;&gt;2.8. 总结&lt;/h2&gt;
 &lt;p&gt;切片暂时告一段落，最后总结一下：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;切片是对数组的封装，切片可以自动扩容。&lt;/li&gt;
@@ -301,6 +326,24 @@ fmt.Println(slc2)
 &lt;li&gt;切片的扩容并不一定总是原有容量的2倍或者1.25倍，当 &lt;code&gt;append&lt;/code&gt; 多个元素时，会有内存对齐 ，最终的容量大于等于长度（这是一句废话，容量小于长度就 panic 了）。&lt;/li&gt;
 &lt;li&gt;使用 &lt;code&gt;var&lt;/code&gt; 声明的切片可以直接 &lt;code&gt;append&lt;/code&gt;，并且我们建议这样，因为在声明时不会分配内存。&lt;/li&gt;
 &lt;li&gt;已知切片容量或者长度时，声明时最好也指定容量或者长度，因为扩容导致重新分配内存消耗太大了。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;参考链接：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://qcrao.github.io/2019/04/02/dive-into-go-slice/&#34;&gt;https://qcrao.github.io/2019/04/02/dive-into-go-slice/&lt;/a&gt;（饶大）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://xargin.com/go-slice/&#34;&gt;https://xargin.com/go-slice/&lt;/a&gt;（曹大）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.tutorialspoint.com/go/go_slice.htm&#34;&gt;https://www.tutorialspoint.com/go/go_slice.htm&lt;/a&gt;（需要梯子）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://medium.com/rungo/the-anatomy-of-slices-in-go-6450e3bb2b94&#34;&gt;https://medium.com/rungo/the-anatomy-of-slices-in-go-6450e3bb2b94&lt;/a&gt;（需要梯子）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.thegeekstuff.com/2019/03/golang-slice-examples/&#34;&gt;https://www.thegeekstuff.com/2019/03/golang-slice-examples/&lt;/a&gt;（需要梯子）&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

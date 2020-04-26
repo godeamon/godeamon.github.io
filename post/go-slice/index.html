@@ -16,7 +16,7 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587709295" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587907568" />
 
 <meta property="og:title" content="Go Slice" />
 <meta property="og:description" content="1.切片是啥 ​	Go 的 **Slice（切片）**类型提供了一种方便有效的方法来处理类型化数据序列。 slice 与其他语言的数组类似却又不同，简单来说，切片更加灵活，用起来更方便，其原因就是可以扩容。
@@ -314,9 +314,34 @@ fmt.Println(slc2)
 </span><span style="color:#75715e"></span>	
 <span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">2</span>]
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d\n&#34;</span>, len(<span style="color:#a6e22e">s2</span>), cap(<span style="color:#a6e22e">s2</span>)) <span style="color:#75715e">// len=1, cap=3
-</span></code></pre></div><h2 id="26-传递">2.6. 传递</h2>
+</span></code></pre></div><h2 id="26-拷贝">2.6. 拷贝</h2>
+<p>切片的拷贝可以使用内置 copy 函数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>}
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s1</span> []<span style="color:#66d9ef">int</span>
+copy(<span style="color:#a6e22e">s1</span>, <span style="color:#a6e22e">s</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>) <span style="color:#75715e">// []
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// [1 2 3 4]
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">s1</span> = make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">2</span>)
+<span style="color:#a6e22e">count</span> <span style="color:#f92672">:=</span> copy(<span style="color:#a6e22e">s1</span>, <span style="color:#a6e22e">s</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>) <span style="color:#75715e">// [1 2]
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// [1 2 3 4]
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">count</span>) <span style="color:#75715e">// 2
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">s1</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">5</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>) <span style="color:#75715e">// [5 2]
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// [1 2 3 4]
+</span></code></pre></div><p>上面的例子可以看出来，copy 只会拷贝目标切片长度个元素，并且 copy 后两个切片是没有影响的。</p>
+<p>还有一种更加高效的实现方式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> append(<span style="color:#a6e22e">s</span>[:<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">s</span><span style="color:#f92672">...</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s2</span>) <span style="color:#75715e">// [1 2 3 4]
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">s2</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">5</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s2</span>) <span style="color:#75715e">// [5 2 3 4]
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// [1 2 3 4]
+</span></code></pre></div><p>上面这种方式算是一个比较取巧的方法，并且可以达到 copy 的效果，并且速度要比 copy 快很多。需要注意的是第一行中 cap 的下标是一定要写的，并且建议写0，这样效率是最高的。</p>
+<h2 id="27-传递">2.7. 传递</h2>
 <p>Go 语言函数参数都是值传递，在函数内部会拷贝一份，所以 slice 传递后拷贝一份都是新的 slice，但是 map 这种初始化之后就是一个 *hmap，所以参数传递后还是指向同一个 map（map 以后再详解）。</p>
-<h2 id="27-总结">2.7. 总结</h2>
+<h2 id="28-总结">2.8. 总结</h2>
 <p>切片暂时告一段落，最后总结一下：</p>
 <ul>
 <li>切片是对数组的封装，切片可以自动扩容。</li>
@@ -324,6 +349,24 @@ fmt.Println(slc2)
 <li>切片的扩容并不一定总是原有容量的2倍或者1.25倍，当 <code>append</code> 多个元素时，会有内存对齐 ，最终的容量大于等于长度（这是一句废话，容量小于长度就 panic 了）。</li>
 <li>使用 <code>var</code> 声明的切片可以直接 <code>append</code>，并且我们建议这样，因为在声明时不会分配内存。</li>
 <li>已知切片容量或者长度时，声明时最好也指定容量或者长度，因为扩容导致重新分配内存消耗太大了。</li>
+</ul>
+<p>参考链接：</p>
+<ul>
+<li>
+<p><a href="https://qcrao.github.io/2019/04/02/dive-into-go-slice/">https://qcrao.github.io/2019/04/02/dive-into-go-slice/</a>（饶大）</p>
+</li>
+<li>
+<p><a href="https://xargin.com/go-slice/">https://xargin.com/go-slice/</a>（曹大）</p>
+</li>
+<li>
+<p><a href="https://www.tutorialspoint.com/go/go_slice.htm">https://www.tutorialspoint.com/go/go_slice.htm</a>（需要梯子）</p>
+</li>
+<li>
+<p><a href="https://medium.com/rungo/the-anatomy-of-slices-in-go-6450e3bb2b94">https://medium.com/rungo/the-anatomy-of-slices-in-go-6450e3bb2b94</a>（需要梯子）</p>
+</li>
+<li>
+<p><a href="https://www.thegeekstuff.com/2019/03/golang-slice-examples/">https://www.thegeekstuff.com/2019/03/golang-slice-examples/</a>（需要梯子）</p>
+</li>
 </ul>
 
         </div>
