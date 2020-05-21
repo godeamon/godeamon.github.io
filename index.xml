@@ -321,7 +321,7 @@
 	}
 }
 &lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;​	newcap 开始是就切片的容量2，doublecap 为2+2=4，cap 为5，此时cap&amp;gt;doublecap，因此newcap 最终就是5（剩下的逻辑自己可以看看，如果 cap&amp;lt;doublecap 的情况自己可以试一下）。&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;​	&lt;code&gt;newcap&lt;/code&gt; 开始是就切片的容量2，&lt;code&gt;doublecap&lt;/code&gt; 为2+2=4，&lt;code&gt;cap&lt;/code&gt; 为5，此时&lt;code&gt;cap&amp;gt;doublecap&lt;/code&gt;，因此&lt;code&gt;newcap&lt;/code&gt; 最终就是5（剩下的逻辑自己可以看看，如果 &lt;code&gt;cap&amp;lt;doublecap&lt;/code&gt; 的情况自己可以试一下）。&lt;/p&gt;
 &lt;p&gt;​	在 2.2.1.2 中我们介绍了 &lt;code&gt;roundupsize&lt;/code&gt;，此时我们已经知道 newcap 为5，int64 占用8字节，那就是说我切片扩容后需要5*8=40字节，再通过 &lt;code&gt;roundupsize&lt;/code&gt; 计算，最终给我们的内存大小应该是48字节（可以回顾一下2.2.1.2），48/8=6，所以结果我们就知道了，最终切片的 cap 就是6。&lt;/p&gt;
 &lt;p&gt;​	源码实现的方式中很多计算，包括左移右移等，但是想法和我上面说的是一样的，感兴趣大家可以参考源码计算一下。&lt;/p&gt;
 &lt;h1 id=&#34;4总结&#34;&gt;4.总结&lt;/h1&gt;

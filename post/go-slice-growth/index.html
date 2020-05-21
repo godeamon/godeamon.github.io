@@ -16,7 +16,7 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1590049707" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1590050930" />
 
 <meta property="og:title" content="Go Slice Growth" />
 <meta property="og:description" content="1.回顾切片 ​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。
@@ -342,7 +342,7 @@ s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为
 	}
 }
 <span style="color:#f92672">...</span>
-</code></pre></div><p>​	newcap 开始是就切片的容量2，doublecap 为2+2=4，cap 为5，此时cap&gt;doublecap，因此newcap 最终就是5（剩下的逻辑自己可以看看，如果 cap&lt;doublecap 的情况自己可以试一下）。</p>
+</code></pre></div><p>​	<code>newcap</code> 开始是就切片的容量2，<code>doublecap</code> 为2+2=4，<code>cap</code> 为5，此时<code>cap&gt;doublecap</code>，因此<code>newcap</code> 最终就是5（剩下的逻辑自己可以看看，如果 <code>cap&lt;doublecap</code> 的情况自己可以试一下）。</p>
 <p>​	在 2.2.1.2 中我们介绍了 <code>roundupsize</code>，此时我们已经知道 newcap 为5，int64 占用8字节，那就是说我切片扩容后需要5*8=40字节，再通过 <code>roundupsize</code> 计算，最终给我们的内存大小应该是48字节（可以回顾一下2.2.1.2），48/8=6，所以结果我们就知道了，最终切片的 cap 就是6。</p>
 <p>​	源码实现的方式中很多计算，包括左移右移等，但是想法和我上面说的是一样的，感兴趣大家可以参考源码计算一下。</p>
 <h1 id="4总结">4.总结</h1>
