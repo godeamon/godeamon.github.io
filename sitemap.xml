@@ -9,16 +9,26 @@
   
   <url>
     <loc>https://godeamon.github.io/</loc>
-    <lastmod>2020-04-18T11:32:30+08:00</lastmod>
+    <lastmod>2020-05-20T20:52:22+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://godeamon.github.io/post/go-slice/</loc>
-    <lastmod>2020-04-18T11:32:30+08:00</lastmod>
+    <loc>https://godeamon.github.io/post/go-slice-growth/</loc>
+    <lastmod>2020-05-20T20:52:22+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://godeamon.github.io/post/</loc>
+    <lastmod>2020-05-20T20:52:22+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/go-string/</loc>
+    <lastmod>2020-05-17T17:26:57+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/go-slice/</loc>
     <lastmod>2020-04-18T11:32:30+08:00</lastmod>
   </url>
   

@@ -17,14 +17,14 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1587907568" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1590049707" />
 
 <meta property="og:title" content="Attitude is altitude" />
 <meta property="og:description" content="区块链、Go" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://godeamon.github.io/" />
 <meta property="og:image" content="https://godeamon.github.io/images/og-featured.png"/>
-<meta property="og:updated_time" content="2020-04-18T11:32:30+08:00" />
+<meta property="og:updated_time" content="2020-05-20T20:52:22+08:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://godeamon.github.io/images/og-featured.png"/>
@@ -97,6 +97,57 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
                     
                 </ul>
         
+</div>
+
+    </article>
+    
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="/post/go-slice-growth/">Go Slice Growth</a>
+            </h1>
+        </header>
+
+        <div class="content">
+            1.回顾切片 ​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。
+1.1. 示例代码 ​	再回顾一下上一篇文章中关于扩容的代码：
+s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;) s = append(s, &#34;d&#34;) s = append(s, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=8 s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;, &#34;d&#34;, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=5 s := []int{1, 2} // 此时切片长度为2，容量也为2。 s = append(s, 3, 4, 5) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=6 2.
+        </div>
+
+        
+        <div class="article-info">
+    
+        <div class="article-date">2020-05-20</div>
+    
+    <div class="article-taxonomies">
+        
+            
+</div>
+
+    </article>
+    
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="/post/go-string/">Go String</a>
+            </h1>
+        </header>
+
+        <div class="content">
+            1. string 简介  本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。
+ ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
+2. 源码 2.1. string 类型源码 ​	在 go/src/reflect/value.go 文件中，对于 string 类型有两个结构体，如下：
+// StringHeader is the runtime representation of a string. // It cannot be used safely or portably and its representation may // change in a later release. // Moreover, the Data field is not sufficient to guarantee the data // it references will not be garbage collected, so programs must keep // a separate, correctly typed pointer to the underlying data.
+        </div>
+
+        
+        <div class="article-info">
+    
+        <div class="article-date">2020-05-17</div>
+    
+    <div class="article-taxonomies">
+        
+            
 </div>
 
     </article>

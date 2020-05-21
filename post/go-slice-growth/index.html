@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>Go Slice Growth  - Attitude is altitude</title>
+<meta name="description" content="区块链、Go">
+
+<link rel="alternate" type="application/rss+xml" title="RSS" href="https://godeamon.github.io/rss/">
+
+<link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
+
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1590049707" />
+
+<meta property="og:title" content="Go Slice Growth" />
+<meta property="og:description" content="1.回顾切片 ​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。
+1.1. 示例代码 ​	再回顾一下上一篇文章中关于扩容的代码：
+s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;) s = append(s, &#34;d&#34;) s = append(s, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=8 s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;, &#34;d&#34;, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=5 s := []int{1, 2} // 此时切片长度为2，容量也为2。 s = append(s, 3, 4, 5) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=6 2." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://godeamon.github.io/post/go-slice-growth/" />
+<meta property="og:image" content="https://godeamon.github.io/images/og-featured.png"/>
+<meta property="article:published_time" content="2020-05-20T20:52:22+08:00" />
+<meta property="article:modified_time" content="2020-05-20T20:52:22+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://godeamon.github.io/images/og-featured.png"/>
+
+<meta name="twitter:title" content="Go Slice Growth"/>
+<meta name="twitter:description" content="1.回顾切片 ​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。
+1.1. 示例代码 ​	再回顾一下上一篇文章中关于扩容的代码：
+s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;) s = append(s, &#34;d&#34;) s = append(s, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=8 s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为2。 s = append(s, &#34;c&#34;, &#34;d&#34;, &#34;e&#34;) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=5 s := []int{1, 2} // 此时切片长度为2，容量也为2。 s = append(s, 3, 4, 5) fmt.Printf(&#34;len=%d, cap=%d&#34;, len(s), cap(s)) // 结果：len=5, cap=6 2."/>
+
+
+
+
+
+
+    
+</head>
+<body>
+    <div class="container">
+        <header> 
+            
+                <h1 class="site-header">
+    <a href="https://godeamon.github.io">Attitude is altitude</a>
+</h1>
+<nav>
+    
+    
+    <a class="" href="/post/about-me" title="About">About</a>
+    
+    <a class="" href="/post/" title="Archive">Archive</a>
+    
+    <a class="" href="/post/plan" title="Plan">Plan</a>
+    
+    <a class="" href="/post/reading" title="Reading">Reading</a>
+    
+</nav>
+
+            
+        </header>
+        <main>
+            
+
+    <article class="post">
+        <header>
+            <h1>Go Slice Growth</h1>
+        </header>
+        <div class="content">
+            <h1 id="1回顾切片">1.回顾切片</h1>
+<p>​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。</p>
+<h2 id="11-示例代码">1.1. 示例代码</h2>
+<p>​	再回顾一下上一篇文章中关于扩容的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;a&#34;</span>, <span style="color:#e6db74">&#34;b&#34;</span>} <span style="color:#75715e">// 此时切片长度为2，容量也为2。
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#e6db74">&#34;c&#34;</span>)
+<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#e6db74">&#34;d&#34;</span>)
+<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#e6db74">&#34;e&#34;</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// 结果：len=5, cap=8
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;a&#34;</span>, <span style="color:#e6db74">&#34;b&#34;</span>} <span style="color:#75715e">// 此时切片长度为2，容量也为2。
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#e6db74">&#34;c&#34;</span>, <span style="color:#e6db74">&#34;d&#34;</span>, <span style="color:#e6db74">&#34;e&#34;</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// 结果：len=5, cap=5
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>} <span style="color:#75715e">// 此时切片长度为2，容量也为2。
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// 结果：len=5, cap=6
+</span></code></pre></div><h1 id="2扩容源码">2.扩容源码</h1>
+<h2 id="21-源码">2.1. 源码</h2>
+<p>​	源码位置在 <code>go/src/runtime/slice.go</code>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">growslice</span>(<span style="color:#a6e22e">et</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">_type</span>, <span style="color:#a6e22e">old</span> <span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">cap</span> <span style="color:#66d9ef">int</span>) <span style="color:#a6e22e">slice</span> {
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">raceenabled</span> {
+		<span style="color:#a6e22e">callerpc</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">getcallerpc</span>()
+		<span style="color:#a6e22e">racereadrangepc</span>(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>)), <span style="color:#a6e22e">callerpc</span>, <span style="color:#a6e22e">funcPC</span>(<span style="color:#a6e22e">growslice</span>))
+	}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">msanenabled</span> {
+		<span style="color:#a6e22e">msanread</span>(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>)))
+	}
+
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &lt; <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span> {
+		panic(<span style="color:#a6e22e">errorString</span>(<span style="color:#e6db74">&#34;growslice: cap out of range&#34;</span>))
+	}
+
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+		<span style="color:#75715e">// append should not create a slice with nil pointer but non-zero len.
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// We assume that append doesn&#39;t need to preserve old.array in this case.
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">slice</span>{<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">zerobase</span>), <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>, <span style="color:#a6e22e">cap</span>}
+	}
+
+	<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>
+	<span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {
+		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span> &lt; <span style="color:#ae81ff">1024</span> {
+			<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">doublecap</span>
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#75715e">// Check 0 &lt; newcap to detect overflow
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// and prevent an infinite loop.
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">for</span> <span style="color:#ae81ff">0</span> &lt; <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">newcap</span> &lt; <span style="color:#a6e22e">cap</span> {
+				<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">4</span>
+			}
+			<span style="color:#75715e">// Set newcap to the requested cap when
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// the newcap calculation overflowed.
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span> {
+				<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+			}
+		}
+	}
+
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">overflow</span> <span style="color:#66d9ef">bool</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lenmem</span>, <span style="color:#a6e22e">newlenmem</span>, <span style="color:#a6e22e">capmem</span> <span style="color:#66d9ef">uintptr</span>
+	<span style="color:#75715e">// Specialize for common values of et.size.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For 1 we don&#39;t need any division/multiplication.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For sys.PtrSize, compiler will optimize division/multiplication into a shift by a constant.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For powers of 2, use a variable shift.
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">switch</span> {
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>)
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>)
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>))
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; <span style="color:#a6e22e">maxAlloc</span>
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span>)
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>)
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; <span style="color:#a6e22e">maxAlloc</span><span style="color:#f92672">/</span><span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>)
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">isPowerOfTwo</span>(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>):
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">shift</span> <span style="color:#66d9ef">uintptr</span>
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">8</span> {
+			<span style="color:#75715e">// Mask shift for better code generation.
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">shift</span> = uintptr(<span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">Ctz64</span>(uint64(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>))) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">63</span>
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#a6e22e">shift</span> = uintptr(<span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">Ctz32</span>(uint32(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>))) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">31</span>
+		}
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>)
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; (<span style="color:#a6e22e">maxAlloc</span> <span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">shift</span>)
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">shift</span>)
+	<span style="color:#66d9ef">default</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>
+		<span style="color:#a6e22e">capmem</span>, <span style="color:#a6e22e">overflow</span> = <span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">MulUintptr</span>(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>, uintptr(<span style="color:#a6e22e">newcap</span>))
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(<span style="color:#a6e22e">capmem</span>)
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>)
+	}
+
+	<span style="color:#75715e">// The check of overflow in addition to capmem &gt; maxAlloc is needed
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// to prevent an overflow which can be used to trigger a segfault
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// on 32bit architectures with this example program:
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// type T [1&lt;&lt;27 + 1]int64
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// var d T
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// var s []T
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// func main() {
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//   s = append(s, d, d, d, d)
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//   print(len(s), &#34;\n&#34;)
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// }
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">overflow</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">capmem</span> &gt; <span style="color:#a6e22e">maxAlloc</span> {
+		panic(<span style="color:#a6e22e">errorString</span>(<span style="color:#e6db74">&#34;growslice: cap out of range&#34;</span>))
+	}
+
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">ptrdata</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+		<span style="color:#a6e22e">p</span> = <span style="color:#a6e22e">mallocgc</span>(<span style="color:#a6e22e">capmem</span>, <span style="color:#66d9ef">nil</span>, <span style="color:#66d9ef">false</span>)
+		<span style="color:#75715e">// The append() that calls growslice is going to overwrite from old.len to cap (which will be the new length).
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// Only clear the part that will not be overwritten.
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">memclrNoHeapPointers</span>(<span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">p</span>, <span style="color:#a6e22e">newlenmem</span>), <span style="color:#a6e22e">capmem</span><span style="color:#f92672">-</span><span style="color:#a6e22e">newlenmem</span>)
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#75715e">// Note: can&#39;t use rawmem (which avoids zeroing of memory), because then GC can scan uninitialized memory.
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">p</span> = <span style="color:#a6e22e">mallocgc</span>(<span style="color:#a6e22e">capmem</span>, <span style="color:#a6e22e">et</span>, <span style="color:#66d9ef">true</span>)
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">lenmem</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">writeBarrier</span>.<span style="color:#a6e22e">enabled</span> {
+			<span style="color:#75715e">// Only shade the pointers in old.array since we know the destination slice p
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// only contains nil pointers because it has been cleared during alloc.
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">bulkBarrierPreWriteSrcOnly</span>(uintptr(<span style="color:#a6e22e">p</span>), uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">array</span>), <span style="color:#a6e22e">lenmem</span>)
+		}
+	}
+	<span style="color:#a6e22e">memmove</span>(<span style="color:#a6e22e">p</span>, <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">array</span>, <span style="color:#a6e22e">lenmem</span>)
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">slice</span>{<span style="color:#a6e22e">p</span>, <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>, <span style="color:#a6e22e">newcap</span>}
+}
+</code></pre></div><p>​	这里我把所有代码都拿过来了，在详细分析这部分代码时，我们先准备一下必备的基础知识。</p>
+<h2 id="22-基础知识">2.2. 基础知识</h2>
+<h3 id="221-分配内存">2.2.1. 分配内存</h3>
+<p>​	go 语言的内存分配也是比较复杂的，这篇文章不会把所有内存分配的细节讲出来，只会把和切片扩容相关的知识点说一下，首先我们先看一个源码 <code>go/src/runtime/sizeclasses.go</code> ：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// Code generated by mksizeclasses.go; DO NOT EDIT.
+</span><span style="color:#75715e">//go:generate go run mksizeclasses.go
+</span><span style="color:#75715e"></span>
+<span style="color:#f92672">package</span> <span style="color:#a6e22e">runtime</span>
+
+<span style="color:#75715e">// class  bytes/obj  bytes/span  objects  tail waste  max waste
+</span><span style="color:#75715e">//     1          8        8192     1024           0     87.50%
+</span><span style="color:#75715e">//     2         16        8192      512           0     43.75%
+</span><span style="color:#75715e">//     3         32        8192      256           0     46.88%
+</span><span style="color:#75715e">//     4         48        8192      170          32     31.52%
+</span><span style="color:#75715e">//     5         64        8192      128           0     23.44%
+</span><span style="color:#75715e">//     6         80        8192      102          32     19.07%
+</span><span style="color:#75715e">//     7         96        8192       85          32     15.95%
+</span><span style="color:#75715e">//     8        112        8192       73          16     13.56%
+</span><span style="color:#75715e">//     9        128        8192       64           0     11.72%
+</span><span style="color:#75715e">//    10        144        8192       56         128     11.82%
+</span><span style="color:#75715e">//    11        160        8192       51          32      9.73%
+</span><span style="color:#75715e">//    12        176        8192       46          96      9.59%
+</span><span style="color:#75715e">//    13        192        8192       42         128      9.25%
+</span><span style="color:#75715e">//    14        208        8192       39          80      8.12%
+</span><span style="color:#75715e">//    15        224        8192       36         128      8.15%
+</span><span style="color:#75715e">//    16        240        8192       34          32      6.62%
+</span><span style="color:#75715e">//    17        256        8192       32           0      5.86%
+</span><span style="color:#75715e">//    18        288        8192       28         128     12.16%
+</span><span style="color:#75715e">//    19        320        8192       25         192     11.80%
+</span><span style="color:#75715e">//    20        352        8192       23          96      9.88%
+</span><span style="color:#75715e">//    21        384        8192       21         128      9.51%
+</span><span style="color:#75715e">//    22        416        8192       19         288     10.71%
+</span><span style="color:#75715e">//    23        448        8192       18         128      8.37%
+</span><span style="color:#75715e">//    24        480        8192       17          32      6.82%
+</span><span style="color:#75715e">//    25        512        8192       16           0      6.05%
+</span><span style="color:#75715e">//    26        576        8192       14         128     12.33%
+</span><span style="color:#75715e">//    27        640        8192       12         512     15.48%
+</span><span style="color:#75715e">//    28        704        8192       11         448     13.93%
+</span><span style="color:#75715e">//    29        768        8192       10         512     13.94%
+</span><span style="color:#75715e">//    30        896        8192        9         128     15.52%
+</span><span style="color:#75715e">//    31       1024        8192        8           0     12.40%
+</span><span style="color:#75715e">//    32       1152        8192        7         128     12.41%
+</span><span style="color:#75715e">//    33       1280        8192        6         512     15.55%
+</span><span style="color:#75715e">//    34       1408       16384       11         896     14.00%
+</span><span style="color:#75715e">//    35       1536        8192        5         512     14.00%
+</span><span style="color:#75715e">//    36       1792       16384        9         256     15.57%
+</span><span style="color:#75715e">//    37       2048        8192        4           0     12.45%
+</span><span style="color:#75715e">//    38       2304       16384        7         256     12.46%
+</span><span style="color:#75715e">//    39       2688        8192        3         128     15.59%
+</span><span style="color:#75715e">//    40       3072       24576        8           0     12.47%
+</span><span style="color:#75715e">//    41       3200       16384        5         384      6.22%
+</span><span style="color:#75715e">//    42       3456       24576        7         384      8.83%
+</span><span style="color:#75715e">//    43       4096        8192        2           0     15.60%
+</span><span style="color:#75715e">//    44       4864       24576        5         256     16.65%
+</span><span style="color:#75715e">//    45       5376       16384        3         256     10.92%
+</span><span style="color:#75715e">//    46       6144       24576        4           0     12.48%
+</span><span style="color:#75715e">//    47       6528       32768        5         128      6.23%
+</span><span style="color:#75715e">//    48       6784       40960        6         256      4.36%
+</span><span style="color:#75715e">//    49       6912       49152        7         768      3.37%
+</span><span style="color:#75715e">//    50       8192        8192        1           0     15.61%
+</span><span style="color:#75715e">//    51       9472       57344        6         512     14.28%
+</span><span style="color:#75715e">//    52       9728       49152        5         512      3.64%
+</span><span style="color:#75715e">//    53      10240       40960        4           0      4.99%
+</span><span style="color:#75715e">//    54      10880       32768        3         128      6.24%
+</span><span style="color:#75715e">//    55      12288       24576        2           0     11.45%
+</span><span style="color:#75715e">//    56      13568       40960        3         256      9.99%
+</span><span style="color:#75715e">//    57      14336       57344        4           0      5.35%
+</span><span style="color:#75715e">//    58      16384       16384        1           0     12.49%
+</span><span style="color:#75715e">//    59      18432       73728        4           0     11.11%
+</span><span style="color:#75715e">//    60      19072       57344        3         128      3.57%
+</span><span style="color:#75715e">//    61      20480       40960        2           0      6.87%
+</span><span style="color:#75715e">//    62      21760       65536        3         256      6.25%
+</span><span style="color:#75715e">//    63      24576       24576        1           0     11.45%
+</span><span style="color:#75715e">//    64      27264       81920        3         128     10.00%
+</span><span style="color:#75715e">//    65      28672       57344        2           0      4.91%
+</span><span style="color:#75715e">//    66      32768       32768        1           0     12.50%
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">const</span> (
+	<span style="color:#a6e22e">_MaxSmallSize</span>   = <span style="color:#ae81ff">32768</span>
+	<span style="color:#a6e22e">smallSizeDiv</span>    = <span style="color:#ae81ff">8</span>
+	<span style="color:#a6e22e">smallSizeMax</span>    = <span style="color:#ae81ff">1024</span>
+	<span style="color:#a6e22e">largeSizeDiv</span>    = <span style="color:#ae81ff">128</span>
+	<span style="color:#a6e22e">_NumSizeClasses</span> = <span style="color:#ae81ff">67</span>
+	<span style="color:#a6e22e">_PageShift</span>      = <span style="color:#ae81ff">13</span>
+)
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">class_to_size</span> = [<span style="color:#a6e22e">_NumSizeClasses</span>]<span style="color:#66d9ef">uint16</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">32</span>, <span style="color:#ae81ff">48</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">80</span>, <span style="color:#ae81ff">96</span>, <span style="color:#ae81ff">112</span>, <span style="color:#ae81ff">128</span>, <span style="color:#ae81ff">144</span>, <span style="color:#ae81ff">160</span>, <span style="color:#ae81ff">176</span>, <span style="color:#ae81ff">192</span>, <span style="color:#ae81ff">208</span>, <span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">256</span>, <span style="color:#ae81ff">288</span>, <span style="color:#ae81ff">320</span>, <span style="color:#ae81ff">352</span>, <span style="color:#ae81ff">384</span>, <span style="color:#ae81ff">416</span>, <span style="color:#ae81ff">448</span>, <span style="color:#ae81ff">480</span>, <span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">576</span>, <span style="color:#ae81ff">640</span>, <span style="color:#ae81ff">704</span>, <span style="color:#ae81ff">768</span>, <span style="color:#ae81ff">896</span>, <span style="color:#ae81ff">1024</span>, <span style="color:#ae81ff">1152</span>, <span style="color:#ae81ff">1280</span>, <span style="color:#ae81ff">1408</span>, <span style="color:#ae81ff">1536</span>, <span style="color:#ae81ff">1792</span>, <span style="color:#ae81ff">2048</span>, <span style="color:#ae81ff">2304</span>, <span style="color:#ae81ff">2688</span>, <span style="color:#ae81ff">3072</span>, <span style="color:#ae81ff">3200</span>, <span style="color:#ae81ff">3456</span>, <span style="color:#ae81ff">4096</span>, <span style="color:#ae81ff">4864</span>, <span style="color:#ae81ff">5376</span>, <span style="color:#ae81ff">6144</span>, <span style="color:#ae81ff">6528</span>, <span style="color:#ae81ff">6784</span>, <span style="color:#ae81ff">6912</span>, <span style="color:#ae81ff">8192</span>, <span style="color:#ae81ff">9472</span>, <span style="color:#ae81ff">9728</span>, <span style="color:#ae81ff">10240</span>, <span style="color:#ae81ff">10880</span>, <span style="color:#ae81ff">12288</span>, <span style="color:#ae81ff">13568</span>, <span style="color:#ae81ff">14336</span>, <span style="color:#ae81ff">16384</span>, <span style="color:#ae81ff">18432</span>, <span style="color:#ae81ff">19072</span>, <span style="color:#ae81ff">20480</span>, <span style="color:#ae81ff">21760</span>, <span style="color:#ae81ff">24576</span>, <span style="color:#ae81ff">27264</span>, <span style="color:#ae81ff">28672</span>, <span style="color:#ae81ff">32768</span>}
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">class_to_allocnpages</span> = [<span style="color:#a6e22e">_NumSizeClasses</span>]<span style="color:#66d9ef">uint8</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">4</span>}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">divMagic</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">shift</span>    <span style="color:#66d9ef">uint8</span>
+	<span style="color:#a6e22e">shift2</span>   <span style="color:#66d9ef">uint8</span>
+	<span style="color:#a6e22e">mul</span>      <span style="color:#66d9ef">uint16</span>
+	<span style="color:#a6e22e">baseMask</span> <span style="color:#66d9ef">uint16</span>
+}
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">class_to_divmagic</span> = [<span style="color:#a6e22e">_NumSizeClasses</span>]<span style="color:#a6e22e">divMagic</span>{{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65528</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65520</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65504</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">683</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65472</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">205</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">171</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">293</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65408</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">911</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">205</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">373</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">171</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">631</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">293</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">547</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65280</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">103</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">373</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">79</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">147</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">137</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">65024</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">103</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">187</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">37</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">64512</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">187</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">37</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">63488</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">41</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">61440</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">161</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">155</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">57344</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">111</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">193</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">155</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">37</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">49152</span>}, {<span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">193</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">77</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">32768</span>}}
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">size_to_class8</span> = [<span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">/</span><span style="color:#a6e22e">smallSizeDiv</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]<span style="color:#66d9ef">uint8</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>}
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">size_to_class128</span> = [(<span style="color:#a6e22e">_MaxSmallSize</span><span style="color:#f92672">-</span><span style="color:#a6e22e">smallSizeMax</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">largeSizeDiv</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]<span style="color:#66d9ef">uint8</span>{<span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">32</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">34</span>, <span style="color:#ae81ff">35</span>, <span style="color:#ae81ff">36</span>, <span style="color:#ae81ff">36</span>, <span style="color:#ae81ff">37</span>, <span style="color:#ae81ff">37</span>, <span style="color:#ae81ff">38</span>, <span style="color:#ae81ff">38</span>, <span style="color:#ae81ff">39</span>, <span style="color:#ae81ff">39</span>, <span style="color:#ae81ff">39</span>, <span style="color:#ae81ff">40</span>, <span style="color:#ae81ff">40</span>, <span style="color:#ae81ff">40</span>, <span style="color:#ae81ff">41</span>, <span style="color:#ae81ff">42</span>, <span style="color:#ae81ff">42</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">44</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">47</span>, <span style="color:#ae81ff">47</span>, <span style="color:#ae81ff">47</span>, <span style="color:#ae81ff">48</span>, <span style="color:#ae81ff">48</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">51</span>, <span style="color:#ae81ff">52</span>, <span style="color:#ae81ff">52</span>, <span style="color:#ae81ff">53</span>, <span style="color:#ae81ff">53</span>, <span style="color:#ae81ff">53</span>, <span style="color:#ae81ff">53</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">55</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">56</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">59</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">62</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">63</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>, <span style="color:#ae81ff">66</span>}
+
+</code></pre></div><p>​</p>
+<h4 id="2211-介绍内存对齐">2.2.1.1 介绍内存对齐</h4>
+<p>​	首先我们需要知道 CPU 从内存度数据是按照每次固定大小读的，例如每次读8字节或者4字节，所以就有一个效率问题，每读取一次，就浪费一点时间，因此 Go 中也存在<strong>内存对齐</strong>，今天重点不是内存对齐，但是这里可以先和大家简单说一下：每个对象在内存中都要占一块空间，可能是1字节，可能是3字节，可能是8字节，所以对于一个 <code>struct</code> 来说，其字段类型会觉得这个结构体对象所占的内存，但是所占内存大小可能不是所有字段类型所占内存的大小，因为为了让 CPU 读取方便，我们就会对每个字段进行内存对齐。点到为止，上面的内存对齐就不深说了，但是上面所说的内容大家还是需要理解的。</p>
+<h4 id="2212-分配内存事实">2.2.1.2. 分配内存事实</h4>
+<p>​	当我们创建一个对象时，需要分配一块内存。假设我们创建的对象需要52 byte，系统是不会真的就给我们52byte大小的内存的，首先会根据上面代码中第六行注释的部分来计算需要给你分配的内存大小，这里可以参考一下<code>go/src/runtime/msize.go</code> 中的 <code>roundupsize</code> 函数。也就是需要<em>向上取整</em>，意思就是48&lt;52&lt;64，所以会分配64byte大小的内存。</p>
+<p>​	这里我们需要明白一个事实，如果我们每次创建一个对象，程序都向计算机中申请一块内存，这样在程序运行时我们是会频繁的创建对象的，这样效率会大大降低，所以程序会预先申请好一些内存块，其大小就是：8、16、32、48等等，这样在我们让程序申请内存时，程序就可以把申请好的内存选一块给我们了，效率也就提高了。</p>
+<h1 id="3扩容规则">3.扩容规则</h1>
+<h2 id="31分析">3.1.分析</h2>
+<p>​	我们使用下面的代码来分析扩容的规则：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int64</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>}
+<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>)) <span style="color:#75715e">// len=5, cap=6
+</span></code></pre></div><p>​	我们首先知道 <code>int64</code> 类型大小为8字节。我们再看切片源码的参数：<code>func growslice(et *_type, old slice, cap int) slice </code>，在上面的代码中，本地扩容的参数第一个是<code>int64</code>类型，第二个就是扩容前切片a（元素为1和2），第三个参数就是预估容量5（因为原有切片容量加上新加元素个数就是5），我们再继续看源码中对容量计算的部分代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">...</span>
+<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>
+<span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {
+	<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+} <span style="color:#66d9ef">else</span> {
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span> &lt; <span style="color:#ae81ff">1024</span> {
+		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">doublecap</span>
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#75715e">// Check 0 &lt; newcap to detect overflow
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// and prevent an infinite loop.
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">for</span> <span style="color:#ae81ff">0</span> &lt; <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">newcap</span> &lt; <span style="color:#a6e22e">cap</span> {
+			<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">4</span>
+		}
+		<span style="color:#75715e">// Set newcap to the requested cap when
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// the newcap calculation overflowed.
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span> {
+			<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+		}
+	}
+}
+<span style="color:#f92672">...</span>
+</code></pre></div><p>​	newcap 开始是就切片的容量2，doublecap 为2+2=4，cap 为5，此时cap&gt;doublecap，因此newcap 最终就是5（剩下的逻辑自己可以看看，如果 cap&lt;doublecap 的情况自己可以试一下）。</p>
+<p>​	在 2.2.1.2 中我们介绍了 <code>roundupsize</code>，此时我们已经知道 newcap 为5，int64 占用8字节，那就是说我切片扩容后需要5*8=40字节，再通过 <code>roundupsize</code> 计算，最终给我们的内存大小应该是48字节（可以回顾一下2.2.1.2），48/8=6，所以结果我们就知道了，最终切片的 cap 就是6。</p>
+<p>​	源码实现的方式中很多计算，包括左移右移等，但是想法和我上面说的是一样的，感兴趣大家可以参考源码计算一下。</p>
+<h1 id="4总结">4.总结</h1>
+<p>​	至此切片扩容就结束了，其中有一些地方这里只是简单说了下。根据上面的例子，大家可以手动试一下 <code>string</code> 类型，或者 <code>int32</code>等。</p>
+
+        </div>
+        <div class="article-info">
+    
+        <div class="article-date">2020-05-20</div>
+    
+    <div class="article-taxonomies">
+        
+            
+</div>
+
+    </article>
+    
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+        </main>
+        <footer>
+            
+                <p>© 李明磊, 2020<br>
+Powered by <a target="_blank" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
+</p>
+            
+        </footer>
+    </div>
+</body>
+</html>
