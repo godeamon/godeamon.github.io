@@ -16,7 +16,7 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1590050930" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1591341119" />
 
 <meta property="og:title" content="Go String" />
 <meta property="og:description" content="1. string 简介  本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。
@@ -252,14 +252,57 @@ copy(<span style="color:#a6e22e">slice1</span>, <span style="color:#a6e22e">stri
 <span style="color:#a6e22e">string2</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;world&#34;</span>
 <span style="color:#a6e22e">slice2</span> = append(<span style="color:#a6e22e">slice2</span>, <span style="color:#a6e22e">string2</span><span style="color:#f92672">...</span>)
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">slice2</span>)) <span style="color:#75715e">// world
-</span></code></pre></div><h3 id="233-string-只读内存">2.3.3. string 只读内存</h3>
+</span></code></pre></div><p>​	 这种写法可以算是 Go 提供给我们的一种语法糖，也就是我们可以省略将 <code>string</code> 类型转换成 <code>[]byte</code> 类型这一步。</p>
+<h3 id="233-string-只读内存">2.3.3. string 只读内存</h3>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">str</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
 <span style="color:#a6e22e">p</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">str</span>)
 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">sl1</span> = new([]<span style="color:#66d9ef">byte</span>)
 <span style="color:#a6e22e">sl1</span> = (<span style="color:#f92672">*</span>[]<span style="color:#66d9ef">byte</span>)(<span style="color:#a6e22e">p</span>)
 (<span style="color:#f92672">*</span><span style="color:#a6e22e">sl1</span>)[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">1</span>
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#f92672">*</span><span style="color:#a6e22e">sl1</span>))
-</code></pre></div><h2 id="23-for-循环">2.3. for 循环</h2>
+</code></pre></div><p>​	上面的代码很简单，主要目的就是对于变量 <code>str</code> 的空间更改一下数据，运行这段代码是会报错的，原因就是 <code>string</code> 都是分配在只读内存上，强行修改就会出错。</p>
+<h2 id="23-for-循环">2.3. for 循环</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">k</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> {
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">k</span>)          <span style="color:#75715e">// 0,1,2,3,4
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">v</span>))  <span style="color:#75715e">// h,e,l,l,o
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#a6e22e">s</span> = <span style="color:#e6db74">&#34;hello世界哈&#34;</span>
+<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">k</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> {
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">k</span>)         <span style="color:#75715e">// 0,1,2,3,4,5,8,11
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">v</span>)) <span style="color:#75715e">// h,e,l,l,o,世,界,哈
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>​	上面代码大家执行结果和大家预想的是否一致？当我们使用 <code>go tool compile -S</code> 命令时，我们就会发现，对于 <code>string</code>  类型的底层使用了 <code>runtime.decoderune</code> 这个函数，位置在：<code>go/src/runtime/utf8.go</code> 中。这里我们不再细讲这个函数的实现，我们首先要明白对于汉字和英文字母其大小是不一样的，Go 中使用的是 utf-8，一个因为字母是1字节，一个汉字是3字节（关于编码部分会在以后的文章中和大家讨论）。所以说对于字符串的 for 遍历，其实遍历的是 <code>码点（codepoint）</code> ，也就是对于汉字这种大小不是1字节的，我们使用 for 循环时是不用担心的。</p>
+<p>​	这是大家可能就会想对于 <code>hello世界哈</code> 这个字符串 for 循环时下标没有<code>5,6,7,9,10</code>，那么我们修改了会怎样呢？看下面的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello世界哈&#34;</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">5</span>])) <span style="color:#75715e">// ä
+</span></code></pre></div><p>​	对于上面代码，如果我们不知道 Go 中 <code>string</code> 的底层或者不明白 <code>utf-8</code> 或者码点等，那么就可能认为字符串 <code>hello世界哈</code> 下标为5的应该是汉字 <code>世</code>，但实际情况并不是，我们已经通过 for 循环的形式知道了 <code>string</code> 底层下标的规则了，想必这个问题大家以后敲代码应该不会再犯这个错误了。</p>
+<p>​	此时应该有同学问了，那如果想根据下标修改或者查看某个位置怎么办？那应该就是下面的情况了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello世界哈&#34;</span>
+<span style="color:#a6e22e">sb</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#a6e22e">s</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sb</span>)) <span style="color:#75715e">// hello世界哈
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">sb</span>[<span style="color:#ae81ff">1</span>] = <span style="color:#ae81ff">97</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sb</span>)) <span style="color:#75715e">// hallo世界哈
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">sb</span>[<span style="color:#ae81ff">5</span>] = <span style="color:#ae81ff">97</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sb</span>)) <span style="color:#75715e">// halloa��界哈
+</span></code></pre></div><p>​	那么怎么解决上面的问题呢？那就继续看下面的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello世界哈&#34;</span>
+<span style="color:#a6e22e">sr</span> <span style="color:#f92672">:=</span> []rune(<span style="color:#a6e22e">s</span>)
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sr</span>))    <span style="color:#75715e">// hello世界哈
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(len(<span style="color:#a6e22e">sr</span>))       <span style="color:#75715e">// 8
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sr</span>[<span style="color:#ae81ff">7</span>])) <span style="color:#75715e">// 哈
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;你好&#34;</span>
+<span style="color:#a6e22e">s1r</span> <span style="color:#f92672">:=</span> []rune(<span style="color:#a6e22e">s1</span>)
+<span style="color:#a6e22e">sr</span>[<span style="color:#ae81ff">7</span>] = <span style="color:#a6e22e">s1r</span>[<span style="color:#ae81ff">1</span>]
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#a6e22e">sr</span>))   <span style="color:#75715e">// hello世界好
+</span></code></pre></div><p>​	上面代码就将 <code>hello世界哈</code> 中的 <code>哈</code> 字改成了 <code>好</code> 字。</p>
+<h2 id="24-总结一下">2.4. 总结一下</h2>
+<p>​	关于 <code>string </code> 类型就告一段落，基本上常用的都说了，希望大家下次用到时可以再回想一下这篇文章，有一些错误就不会再遇到了，而且对于基本的使用也更顺手了。</p>
+<blockquote>
+<p>补充：对于 rune 类型本文并没有过多介绍，关于编码等问题可以在以后的文章中再和大家聊一聊。那时我们再仔细的聊一下 rune （其实就是 int32 哈哈）。</p>
+</blockquote>
 
         </div>
         <div class="article-info">
