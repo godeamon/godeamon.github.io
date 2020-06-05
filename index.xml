@@ -6,7 +6,7 @@
     <description>Attitude is altitude</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 20 May 2020 20:52:22 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 05 Jun 2020 15:14:56 +0800</lastBuildDate>
     
     <atom:link href="https://godeamon.github.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -43,6 +43,16 @@
 &lt;ul&gt;
 &lt;li&gt;如何设计缓存系统&lt;/li&gt;
 &lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Go Chan</title>
+      <link>https://godeamon.github.io/post/go-chan/</link>
+      <pubDate>Fri, 05 Jun 2020 15:14:56 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/go-chan/</guid>
+      <description>&lt;h1 id=&#34;1-chan&#34;&gt;1. chan&lt;/h1&gt;
 </description>
     </item>
     
@@ -839,6 +849,20 @@ copy(&lt;span style=&#34;color:#a6e22e&#34;&gt;s1&lt;/span&gt;, &lt;span style=&
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面这种方式算是一个比较取巧的方法，并且可以达到 copy 的效果，并且速度要比 copy 快很多。需要注意的是第2行中 cap 的下标是一定要写的，并且建议写0，这样效率是最高的。&lt;/p&gt;
 &lt;h2 id=&#34;27-传递&#34;&gt;2.7. 传递&lt;/h2&gt;
 &lt;p&gt;Go 语言函数参数都是值传递，在函数内部会拷贝一份，所以 slice 传递后拷贝一份都是新的 slice，但是 map 这种初始化之后就是一个 *hmap，所以参数传递后还是指向同一个 map（map 以后再详解）。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;slice1&lt;/span&gt;() {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;a&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;b&amp;#34;&lt;/span&gt;}
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)          &lt;span style=&#34;color:#75715e&#34;&gt;// [a b]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%p \n&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// 0xc0000a6020
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;slice2&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)          &lt;span style=&#34;color:#75715e&#34;&gt;// [a c]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;slice2&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;) {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;] = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;c&amp;#34;&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)          &lt;span style=&#34;color:#75715e&#34;&gt;// [a c]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%p \n&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// 0xc0000a6080
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面的代码将切片作为参数确实在 slice2 函数中修改了传进来的参数s，并且在 slice1 函数中的 s 也确实改变了。但是这并不叫做引用传递，我们可以看到两个切片 s 的地址是不一样的，我们传给 slice2 函数的切片是一个新的切片，并不是 slice1 中的 s，但是他们底层都是同一个数组，所以函数 slice2 中修改了切片s底层的数组，所以 slice1 函数中的切片 s 的底层也修改了，但是记住，这依然不叫做引用传递，但是看起来却和引用传递是一样的。&lt;/p&gt;
 &lt;h2 id=&#34;28-总结&#34;&gt;2.8. 总结&lt;/h2&gt;
 &lt;p&gt;切片暂时告一段落，最后总结一下：&lt;/p&gt;
 &lt;ul&gt;
