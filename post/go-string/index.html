@@ -16,25 +16,23 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1591363069" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1592398526" />
 
 <meta property="og:title" content="Go String" />
-<meta property="og:description" content="1. string 简介  本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。
- ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
+<meta property="og:description" content="1. string 简介 ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
 2. 源码 2.1. string 类型源码 ​	在 go/src/reflect/value.go 文件中，对于 string 类型有两个结构体，如下：
 // StringHeader is the runtime representation of a string. // It cannot be used safely or portably and its representation may // change in a later release. // Moreover, the Data field is not sufficient to guarantee the data // it references will not be garbage collected, so programs must keep // a separate, correctly typed pointer to the underlying data." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://godeamon.github.io/post/go-string/" />
-<meta property="og:image" content="https://godeamon.github.io/images/og-featured.png"/>
+<meta property="og:image" content="https://godeamon.github.io/images/gopher.png"/>
 <meta property="article:published_time" content="2020-05-17T17:26:57+08:00" />
 <meta property="article:modified_time" content="2020-05-17T17:26:57+08:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://godeamon.github.io/images/og-featured.png"/>
+<meta name="twitter:image" content="https://godeamon.github.io/images/gopher.png"/>
 
 <meta name="twitter:title" content="Go String"/>
-<meta name="twitter:description" content="1. string 简介  本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。
- ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
+<meta name="twitter:description" content="1. string 简介 ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
 2. 源码 2.1. string 类型源码 ​	在 go/src/reflect/value.go 文件中，对于 string 类型有两个结构体，如下：
 // StringHeader is the runtime representation of a string. // It cannot be used safely or portably and its representation may // change in a later release. // Moreover, the Data field is not sufficient to guarantee the data // it references will not be garbage collected, so programs must keep // a separate, correctly typed pointer to the underlying data."/>
 
@@ -76,9 +74,6 @@
         </header>
         <div class="content">
             <h1 id="1-string-简介">1. string 简介</h1>
-<blockquote>
-<p>本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。</p>
-</blockquote>
 <p>​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。</p>
 <h1 id="2-源码">2. 源码</h1>
 <h2 id="21-string-类型源码">2.1. string 类型源码</h2>
@@ -261,7 +256,7 @@ copy(<span style="color:#a6e22e">slice1</span>, <span style="color:#a6e22e">stri
 (<span style="color:#f92672">*</span><span style="color:#a6e22e">sl1</span>)[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">1</span>
 <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(string(<span style="color:#f92672">*</span><span style="color:#a6e22e">sl1</span>))
 </code></pre></div><p>​	上面的代码很简单，主要目的就是对于变量 <code>str</code> 的空间更改一下数据，运行这段代码是会报错的，原因就是 <code>string</code> 都是分配在只读内存上，强行修改就会出错。</p>
-<h2 id="23-for-循环">2.3. for 循环</h2>
+<h2 id="23-for-循环与-rune">2.3. for 循环与 rune</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
 <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">k</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> {
 	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">k</span>)          <span style="color:#75715e">// 0,1,2,3,4

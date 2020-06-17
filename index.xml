@@ -6,7 +6,7 @@
     <description>Attitude is altitude</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 05 Jun 2020 15:14:56 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 17 Jun 2020 20:45:43 +0800</lastBuildDate>
     
     <atom:link href="https://godeamon.github.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -43,6 +43,36 @@
 &lt;ul&gt;
 &lt;li&gt;如何设计缓存系统&lt;/li&gt;
 &lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Paxos</title>
+      <link>https://godeamon.github.io/post/paxos/</link>
+      <pubDate>Wed, 17 Jun 2020 20:45:43 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/paxos/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go Map</title>
+      <link>https://godeamon.github.io/post/go-map/</link>
+      <pubDate>Sun, 14 Jun 2020 20:22:15 +0800</pubDate>
+      
+      <guid>https://godeamon.github.io/post/go-map/</guid>
+      <description>&lt;h1 id=&#34;1-哈希表&#34;&gt;1. 哈希表&lt;/h1&gt;
+&lt;p&gt;哈希表属于编程中比较常见的数据结构之一，基本上所有的语言都会实现数组和哈希表这两种结构，&lt;a href=&#34;https://en.wikipedia.org/wiki/Hash_table&#34;&gt;Hash table&lt;/a&gt; 的历史是比较悠远的，我们在编程时也是离不开的，这种数据结构的作用其实很简单，就是我们可以根据一个 &lt;code&gt;key&lt;/code&gt; 可以查找到对应的 &lt;code&gt;value&lt;/code&gt;，也就是说这种数据结构存储的是键值对的“列表”。&lt;/p&gt;
+&lt;h2 id=&#34;11-原理&#34;&gt;1.1. 原理&lt;/h2&gt;
+&lt;p&gt;要想实现这种数据结构，主要考虑两方面：哈希函数与冲突解决方法。&lt;/p&gt;
+&lt;p&gt;我们都知道哈希表的复杂度为&lt;code&gt;O(1)&lt;/code&gt;，那么如何设计其底层原理才能做到呢？我们不防假设不考虑复杂度的情况，如果想要实现一个简单的哈希表可以怎样设计呢？&lt;/p&gt;
+&lt;h3 id=&#34;111-不合理的设计&#34;&gt;1.1.1. 不合理的设计&lt;/h3&gt;
+&lt;p&gt;假如我们有两个数组，其长度永远都是一样的，我们把这两个数组结合到一起作为一个 &lt;code&gt;键值对&lt;/code&gt; 的数据结构的实现，这样假如新增一个键值对，将键新增到对应的数组，值新增到另外一个数组，保证下标相同，那么是不是就是实现了一个 &lt;code&gt;map&lt;/code&gt; ？很明显这种做法是很笨的，因为如果这样做，那就根本不需要哈希表的出现了。&lt;/p&gt;
+&lt;p&gt;哈希表最重要的就是根据 &lt;code&gt;key&lt;/code&gt; 可以直接找到 &lt;code&gt;value&lt;/code&gt;，就像一张表，我们根据建找到值对应所在的位置，然后直接到对应位置拿到值就可以了。&lt;/p&gt;
+&lt;h3 id=&#34;112-设计过程&#34;&gt;1.1.2. 设计过程&lt;/h3&gt;
+&lt;p&gt;接下来我们就聊一下，如果是我，我会如何设计 map 的一个简单过程。首先我们知道，map 的一个主要特性就是根据 key 可以直接找到对应的 value，并且其复杂度为O(1)，我们第一个想到的就应该是计算机中内存地址，我们根据地址可以直接找到其对应的内存空间。那么问题就变成了我们如何把 key 做成一个 “指针” 用来直接找到对应 value。&lt;/p&gt;
+&lt;p&gt;map 的 key 可以是很多的数据类型，例如 string、int 等（每种语言可能有所不同）。那么我们需要把所有了类型的 key 都可以转换成我们的 “指针”，换句话说，我们需要把任意类型的 key 都可以转换成一个固定类型的 “指针”。这时候就需要我们的哈希函数上场了。哈希函数主要功能就是根据输入的任意内容来输出一个固定长度的数据，并且输入的数据不同，输出的数据也要不同（但是目前并没有这种完美的哈希函数）。这样我们就可以将 key 通过哈希函数生成固定长度的数据，并根据输出数据作为 “指针” 来找对应的 value。&lt;/p&gt;
+&lt;p&gt;既然我们目前没有完美的哈希函数，那我们可以再转换一下思路，我们可以将哈希函数的输出结果分类，某一类的 key 对应的 value 放到一起，同时保证每一类的 key 的个数有限制，这样根据哈希函数的结果到对应的 value 组中去查找，这样也是可以满足目前的需求的。&lt;/p&gt;
 </description>
     </item>
     
@@ -346,9 +376,6 @@
       
       <guid>https://godeamon.github.io/post/go-string/</guid>
       <description>&lt;h1 id=&#34;1-string-简介&#34;&gt;1. string 简介&lt;/h1&gt;
-&lt;blockquote&gt;
-&lt;p&gt;本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。&lt;/p&gt;
-&lt;/blockquote&gt;
 &lt;p&gt;​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。&lt;/p&gt;
 &lt;h1 id=&#34;2-源码&#34;&gt;2. 源码&lt;/h1&gt;
 &lt;h2 id=&#34;21-string-类型源码&#34;&gt;2.1. string 类型源码&lt;/h2&gt;
@@ -531,7 +558,7 @@ copy(&lt;span style=&#34;color:#a6e22e&#34;&gt;slice1&lt;/span&gt;, &lt;span sty
 (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;sl1&lt;/span&gt;)[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] = &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
 &lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(string(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;sl1&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;​	上面的代码很简单，主要目的就是对于变量 &lt;code&gt;str&lt;/code&gt; 的空间更改一下数据，运行这段代码是会报错的，原因就是 &lt;code&gt;string&lt;/code&gt; 都是分配在只读内存上，强行修改就会出错。&lt;/p&gt;
-&lt;h2 id=&#34;23-for-循环&#34;&gt;2.3. for 循环&lt;/h2&gt;
+&lt;h2 id=&#34;23-for-循环与-rune&#34;&gt;2.3. for 循环与 rune&lt;/h2&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello&amp;#34;&lt;/span&gt;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;k&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;v&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;range&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; {
 	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;k&lt;/span&gt;)          &lt;span style=&#34;color:#75715e&#34;&gt;// 0,1,2,3,4

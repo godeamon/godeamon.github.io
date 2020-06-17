@@ -17,17 +17,17 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1591363069" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1592398526" />
 
 <meta property="og:title" content="Attitude is altitude" />
 <meta property="og:description" content="区块链、Go" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://godeamon.github.io/" />
-<meta property="og:image" content="https://godeamon.github.io/images/og-featured.png"/>
-<meta property="og:updated_time" content="2020-06-05T15:14:56+08:00" />
+<meta property="og:image" content="https://godeamon.github.io/images/gopher.png"/>
+<meta property="og:updated_time" content="2020-06-17T20:45:43+08:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://godeamon.github.io/images/og-featured.png"/>
+<meta name="twitter:image" content="https://godeamon.github.io/images/gopher.png"/>
 
 <meta name="twitter:title" content="Attitude is altitude"/>
 <meta name="twitter:description" content="区块链、Go"/>
@@ -104,6 +104,83 @@ Go 源码  Go runtime Go mem Go map, chan, slice and so on source code Go epoll 
     <article class="post-list">
         <header> 
             <h1>
+                <a href="/post/paxos/">Paxos</a>
+            </h1>
+        </header>
+
+        <div class="content">
+            
+        </div>
+
+        
+        <div class="article-info">
+    
+        <div class="article-date">2020-06-17</div>
+    
+    <div class="article-taxonomies">
+        
+            <ul class="article-categories">
+                
+                    <li><a href="https://godeamon.github.io/categories/blockchain">blockchain</a></li>
+                
+            </ul>
+            
+            
+                <ul class="article-tags">
+                    
+                        <li><a href="https://godeamon.github.io/tags/blockchain">#blockchain</a></li>
+                    
+                </ul>
+        
+</div>
+
+    </article>
+    
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="/post/go-map/">Go Map</a>
+            </h1>
+        </header>
+
+        <div class="content">
+            1. 哈希表 哈希表属于编程中比较常见的数据结构之一，基本上所有的语言都会实现数组和哈希表这两种结构，Hash table 的历史是比较悠远的，我们在编程时也是离不开的，这种数据结构的作用其实很简单，就是我们可以根据一个 key 可以查找到对应的 value，也就是说这种数据结构存储的是键值对的“列表”。
+1.1. 原理 要想实现这种数据结构，主要考虑两方面：哈希函数与冲突解决方法。
+我们都知道哈希表的复杂度为O(1)，那么如何设计其底层原理才能做到呢？我们不防假设不考虑复杂度的情况，如果想要实现一个简单的哈希表可以怎样设计呢？
+1.1.1. 不合理的设计 假如我们有两个数组，其长度永远都是一样的，我们把这两个数组结合到一起作为一个 键值对 的数据结构的实现，这样假如新增一个键值对，将键新增到对应的数组，值新增到另外一个数组，保证下标相同，那么是不是就是实现了一个 map ？很明显这种做法是很笨的，因为如果这样做，那就根本不需要哈希表的出现了。
+哈希表最重要的就是根据 key 可以直接找到 value，就像一张表，我们根据建找到值对应所在的位置，然后直接到对应位置拿到值就可以了。
+1.1.2. 设计过程 接下来我们就聊一下，如果是我，我会如何设计 map 的一个简单过程。首先我们知道，map 的一个主要特性就是根据 key 可以直接找到对应的 value，并且其复杂度为O(1)，我们第一个想到的就应该是计算机中内存地址，我们根据地址可以直接找到其对应的内存空间。那么问题就变成了我们如何把 key 做成一个 “指针” 用来直接找到对应 value。
+map 的 key 可以是很多的数据类型，例如 string、int 等（每种语言可能有所不同）。那么我们需要把所有了类型的 key 都可以转换成我们的 “指针”，换句话说，我们需要把任意类型的 key 都可以转换成一个固定类型的 “指针”。这时候就需要我们的哈希函数上场了。哈希函数主要功能就是根据输入的任意内容来输出一个固定长度的数据，并且输入的数据不同，输出的数据也要不同（但是目前并没有这种完美的哈希函数）。这样我们就可以将 key 通过哈希函数生成固定长度的数据，并根据输出数据作为 “指针” 来找对应的 value。
+既然我们目前没有完美的哈希函数，那我们可以再转换一下思路，我们可以将哈希函数的输出结果分类，某一类的 key 对应的 value 放到一起，同时保证每一类的 key 的个数有限制，这样根据哈希函数的结果到对应的 value 组中去查找，这样也是可以满足目前的需求的。
+        </div>
+
+        
+        <div class="article-info">
+    
+        <div class="article-date">2020-06-14</div>
+    
+    <div class="article-taxonomies">
+        
+            <ul class="article-categories">
+                
+                    <li><a href="https://godeamon.github.io/categories/go">go</a></li>
+                
+            </ul>
+            
+            
+                <ul class="article-tags">
+                    
+                        <li><a href="https://godeamon.github.io/tags/go">#go</a></li>
+                    
+                </ul>
+        
+</div>
+
+    </article>
+    
+    <article class="post-list">
+        <header> 
+            <h1>
                 <a href="/post/go-chan/">Go Chan</a>
             </h1>
         </header>
@@ -157,8 +234,7 @@ s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为
         </header>
 
         <div class="content">
-            1. string 简介  本来打算写 map 的，但是觉得 string 与 slice 太像了，所以想这两个一起看更好一点。
- ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
+            1. string 简介 ​	string 肯定不陌生了，这个可以说是我们平时最常用的，其实字符串就是内存中一片连续的空间，我们也可以理解成字符的数组。在 Go 中我们是可以将 []byte 与 string 直接转换的，今天我们就仔细的聊一下 Go 语言中的 string 类型的一些东西。
 2. 源码 2.1. string 类型源码 ​	在 go/src/reflect/value.go 文件中，对于 string 类型有两个结构体，如下：
 // StringHeader is the runtime representation of a string. // It cannot be used safely or portably and its representation may // change in a later release. // Moreover, the Data field is not sufficient to guarantee the data // it references will not be garbage collected, so programs must keep // a separate, correctly typed pointer to the underlying data.
         </div>
