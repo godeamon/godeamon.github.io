@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 <head>
     
         
@@ -8,15 +8,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>Go Slice Growth  - Attitude is altitude</title>
+<title>Go Slice Growth - Attitude is altitude</title>
 <meta name="description" content="区块链、Go">
-
-<link rel="alternate" type="application/rss+xml" title="RSS" href="https://godeamon.github.io/rss/">
 
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1593265000" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1593267193" />
+
+
 
 <meta property="og:title" content="Go Slice Growth" />
 <meta property="og:description" content="1.回顾切片 ​	上一篇文章我们从源码的角度分析了切片，包括切片的数据结构，底层实现，扩容以及添加等，但是我们并没有详细分析切片扩容的规则到底是什么？尽管上一篇文章中展示了一些代码，可是为什么扩容结果是这样呢？今天我们就来详细的分析一波。
@@ -41,36 +41,40 @@ s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为
 
 
 
+
+
     
 </head>
 <body>
+    <a class="skip-main" href="#main">Skip to main content</a>
     <div class="container">
         <header> 
             
                 <h1 class="site-header">
-    <a href="https://godeamon.github.io">Attitude is altitude</a>
+    <a href="/">Attitude is altitude</a>
 </h1>
 <nav>
     
     
-    <a class="" href="/post/about-me" title="About">About</a>
+    <a class="" href="https://godeamon.github.io/post/about-me" title="About">About</a>
     
-    <a class="" href="/post/" title="Archive">Archive</a>
+    <a class="" href="https://godeamon.github.io/post/" title="Archive">Archive</a>
     
-    <a class="" href="/post/plan" title="Plan">Plan</a>
+    <a class="" href="https://godeamon.github.io/post/plan" title="Plan">Plan</a>
     
-    <a class="" href="/post/reading" title="Reading">Reading</a>
+    <a class="" href="https://godeamon.github.io/post/reading" title="Reading">Reading</a>
     
 </nav>
 
             
         </header>
-        <main>
+        <main id="main" tabindex="-1"> 
             
-
+    
+    
     <article class="post">
         <header>
-            <h1>Go Slice Growth</h1>
+            <h1 class="post-title draft">Go Slice Growth</h1>
         </header>
         <div class="content">
             <h1 id="1回顾切片">1.回顾切片</h1>
@@ -349,16 +353,23 @@ s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为
 <p>​	至此切片扩容就结束了，其中有一些地方这里只是简单说了下。根据上面的例子，大家可以手动试一下 <code>string</code> 类型，或者 <code>int32</code>等。</p>
 
         </div>
-        <div class="article-info">
+        
+
+
+<div class="post-info">
     
-        <div class="article-date">2020-05-20</div>
+        <div class="post-date">2020-05-20</div>
     
-    <div class="article-taxonomies">
+    <div class="post-taxonomies">
         
             
+    </div>
 </div>
 
     </article>
+
+    
+
     
         <div id="disqus_thread"></div>
 <script type="application/javascript">
@@ -386,9 +397,13 @@ s := []string{&#34;a&#34;, &#34;b&#34;} // 此时切片长度为2，容量也为
         </main>
         <footer>
             
+                
+                
+
                 <p>© 李明磊, 2020<br>
-Powered by <a target="_blank" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
+Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
 </p>
+
             
         </footer>
     </div>

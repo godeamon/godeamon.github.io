@@ -152,7 +152,7 @@
 &lt;/ul&gt;
 &lt;p&gt;大体上就是这么一个过程，关于源码中的一些检查项这里就不多废话了，并且源码注释也写的很清楚了。&lt;/p&gt;
 &lt;p&gt;下面这个图就是一个 map 的主要相关存储结构：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;images/map1.png&#34; alt=&#34;map&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://godeamon.github.io/map.png&#34; alt=&#34;map&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;32-定位-key&#34;&gt;3.2 定位 key&lt;/h2&gt;
 &lt;p&gt;一个 map 初始化后基本的结构我们已经知道了，接下来就是我们在这个结构中如何添加一个 key 对应的 value。&lt;/p&gt;
 &lt;p&gt;我们再看一遍每一个桶的结构：&lt;/p&gt;

@@ -39,6 +39,10 @@ summary {
     margin: 0 auto;
 }
 
+main {
+    outline:none;
+}
+
 /* Headers */
 h1 {
     font-size: 1.35em;
@@ -65,15 +69,37 @@ a:hover {
 }
 
 a:hover,
-a:focus {
+a:focus, 
+a:active {
     color: #a31d1d;
     border-bottom: 1px solid rgba(163, 29, 29, .5);
 }
 
 a:active {
-    color: #a31d1d;
     opacity: 0.9;
-    border-bottom: 1px solid rgba(163, 29, 29, .5);
+}
+
+a.skip-main {
+    left:-999px;
+    position:absolute;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+    z-index:-999;
+}
+
+a.skip-main:focus, 
+a.skip-main:active {
+    left: auto;
+    top: 0px;
+    width: auto;
+    height: auto;
+    overflow:auto;
+    z-index:999;
+    padding: 4px 6px 4px 6px;
+    text-decoration: underline;
+    border: none;
 }
 
 /* Table */
@@ -100,7 +126,7 @@ pre {
     padding: 1em;
     background-color: #f1f1f1;
     max-width: 100%;
-    overflow: scroll;
+    overflow: auto;
 }
 
 code,
@@ -188,6 +214,46 @@ main h1 {
 
 /* Articles */
 
+.post-navigation {
+    text-align: center;
+    margin-top: 1em;
+    max-width: 100%;
+    background: #fafafa;
+    padding: 0.5em 0;
+}
+
+.post-navigation a:first-of-type {
+    margin-left: 0;
+}
+
+.post-navigation a {
+    color: #696969;
+    margin-left: 2em;
+}
+
+.post-navigation a:hover, 
+.post-navigation a:focus,
+.post-navigation a:active {
+    color: #a31d1d;
+}
+
+.post-title.favorite::after {
+    content: "★";
+    display: inline-block;
+    margin-left: 0.2em;
+}
+
+.post-title.draft::after {
+    content: "✎";
+    display: inline-block;
+    margin-left: 0.2em;
+}
+
+.post-title.favorite.draft::after {
+    content: "★ ✎";
+    display: inline-block;
+    margin-left: 0.2em;
+}
 
 article:not(:last-of-type) {
     border-bottom: thin solid #f1f1f1;
@@ -207,52 +273,52 @@ article header h1 a {
     color: #333;
 }
 
-.article-info {
+.post-info {
     font-size: 0.75em;
     color: grey;
     margin-top: 1em;
 }
 
-.article-info a {
+.post-info a {
     color: grey;
 }
 
-.article-info a:hover {
+.post-info a:hover {
     color: #a31d1d;
 }
 
-.post-short-list .article-info {
+.post-short-list .post-info {
     margin-top: 0;
     margin-bottom: 1.5em;
 }
 
-.article-taxonomies {
+.post-taxonomies {
     display: inline;
 }
 
-.article-date {
+.post-date {
     white-space: nowrap;
 }
 
-.article-categories {
+.post-categories {
     display: inline;
     list-style-type: none;
     padding: 0;
 }
 
-.article-categories li {
+.post-categories li {
     display: inline;
     margin-right: 1em;
 }
 
-.article-tags {
+.post-tags {
     display: inline;
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-.article-tags li {
+.post-tags li {
     display: inline;
     margin-right: 1em;
 }
@@ -262,6 +328,13 @@ article img {
     display: block;
     height: auto;
     margin: 0 auto .5em;
+}
+
+article figcaption {
+    text-align: center;
+    font-size: 0.85em;
+    color: grey;
+    margin-bottom: 2em;
 }
 
 .read-more {
@@ -275,6 +348,15 @@ article img {
     border-top: thin solid #f1f1f1;
     width: 25%;
     margin: 1em auto;
+}
+
+.post-summary {
+    margin-top: 0.5em;
+    display: block;
+}
+
+.post-summary > p {
+    display: block;
 }
 
 /* Other pages */
@@ -309,9 +391,16 @@ article img {
     color: #333333;
 }
 
-.pagination-item a:hover, .pagination-item   a:focus {
+.pagination-item a:hover, .pagination-item a:focus {
     color: #a31d1d;
     border-bottom: 0;
+}
+
+.post-pagination .pagination-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 16em;
 }
 
 /* Footer */
@@ -320,6 +409,16 @@ footer {
     border-top: thin solid #f1f1f1;
     margin-top: 3em;
     font-size: 16px;
+}
+
+ul.language-select {
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+}
+
+ul.language-select > li {
+    margin-right: 1em;
 }
 
 /* Media Queries */
@@ -365,5 +464,19 @@ footer {
 
     header nav a {
         margin-left: 5%;
+    }
+
+    .post-navigation {
+        text-align: center;
+        background: #fafafa;
+        padding: 0.5em 0;
+    }
+
+    .post-navigation a {
+        margin-left: 0.5em;
+    }
+
+    .post-pagination .pagination-item {
+        max-width: 10em;
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 <head>
     
         
@@ -8,15 +8,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>Go Map  - Attitude is altitude</title>
+<title>Go Map - Attitude is altitude</title>
 <meta name="description" content="区块链、Go">
-
-<link rel="alternate" type="application/rss+xml" title="RSS" href="https://godeamon.github.io/rss/">
 
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1593265000" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1593267193" />
+
+
 
 <meta property="og:title" content="Go Map" />
 <meta property="og:description" content="go" />
@@ -37,36 +37,40 @@
 
 
 
+
+
     
 </head>
 <body>
+    <a class="skip-main" href="#main">Skip to main content</a>
     <div class="container">
         <header> 
             
                 <h1 class="site-header">
-    <a href="https://godeamon.github.io">Attitude is altitude</a>
+    <a href="/">Attitude is altitude</a>
 </h1>
 <nav>
     
     
-    <a class="" href="/post/about-me" title="About">About</a>
+    <a class="" href="https://godeamon.github.io/post/about-me" title="About">About</a>
     
-    <a class="" href="/post/" title="Archive">Archive</a>
+    <a class="" href="https://godeamon.github.io/post/" title="Archive">Archive</a>
     
-    <a class="" href="/post/plan" title="Plan">Plan</a>
+    <a class="" href="https://godeamon.github.io/post/plan" title="Plan">Plan</a>
     
-    <a class="" href="/post/reading" title="Reading">Reading</a>
+    <a class="" href="https://godeamon.github.io/post/reading" title="Reading">Reading</a>
     
 </nav>
 
             
         </header>
-        <main>
+        <main id="main" tabindex="-1"> 
             
-
+    
+    
     <article class="post">
         <header>
-            <h1>Go Map</h1>
+            <h1 class="post-title draft">Go Map</h1>
         </header>
         <div class="content">
             <h1 id="1-哈希表">1 哈希表</h1>
@@ -160,7 +164,7 @@
 </ul>
 <p>大体上就是这么一个过程，关于源码中的一些检查项这里就不多废话了，并且源码注释也写的很清楚了。</p>
 <p>下面这个图就是一个 map 的主要相关存储结构：</p>
-<p><img src="images/map1.png" alt="map"></p>
+<p><img src="/map.png" alt="map"></p>
 <h2 id="32-定位-key">3.2 定位 key</h2>
 <p>一个 map 初始化后基本的结构我们已经知道了，接下来就是我们在这个结构中如何添加一个 key 对应的 value。</p>
 <p>我们再看一遍每一个桶的结构：</p>
@@ -179,28 +183,35 @@
 <p>当我们知道了上面定位 key 的过程，对于 key 的增删改查过程也就不多说了，因为核心的我们已经掌握了，现在大家可以去看一下源码了，这时大家看源码必定事半功倍。</p>
 
         </div>
-        <div class="article-info">
-    
-        <div class="article-date">2020-06-14</div>
-    
-    <div class="article-taxonomies">
         
-            <ul class="article-categories">
+
+
+<div class="post-info">
+    
+        <div class="post-date">2020-06-14</div>
+    
+    <div class="post-taxonomies">
+        
+            <ul class="post-categories">
                 
                     <li><a href="https://godeamon.github.io/categories/go">go</a></li>
                 
             </ul>
             
             
-                <ul class="article-tags">
+                <ul class="post-tags">
                     
                         <li><a href="https://godeamon.github.io/tags/go">#go</a></li>
                     
                 </ul>
         
+    </div>
 </div>
 
     </article>
+
+    
+
     
         <div id="disqus_thread"></div>
 <script type="application/javascript">
@@ -228,9 +239,13 @@
         </main>
         <footer>
             
+                
+                
+
                 <p>© 李明磊, 2020<br>
-Powered by <a target="_blank" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
+Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
 </p>
+
             
         </footer>
     </div>
