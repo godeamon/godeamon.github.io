@@ -61,18 +61,114 @@
       <pubDate>Sun, 14 Jun 2020 20:22:15 +0800</pubDate>
       
       <guid>https://godeamon.github.io/post/go-map/</guid>
-      <description>&lt;h1 id=&#34;1-哈希表&#34;&gt;1. 哈希表&lt;/h1&gt;
+      <description>&lt;h1 id=&#34;1-哈希表&#34;&gt;1 哈希表&lt;/h1&gt;
 &lt;p&gt;哈希表属于编程中比较常见的数据结构之一，基本上所有的语言都会实现数组和哈希表这两种结构，&lt;a href=&#34;https://en.wikipedia.org/wiki/Hash_table&#34;&gt;Hash table&lt;/a&gt; 的历史是比较悠远的，我们在编程时也是离不开的，这种数据结构的作用其实很简单，就是我们可以根据一个 &lt;code&gt;key&lt;/code&gt; 可以查找到对应的 &lt;code&gt;value&lt;/code&gt;，也就是说这种数据结构存储的是键值对的“列表”。&lt;/p&gt;
-&lt;h2 id=&#34;11-原理&#34;&gt;1.1. 原理&lt;/h2&gt;
-&lt;p&gt;要想实现这种数据结构，主要考虑两方面：哈希函数与冲突解决方法。&lt;/p&gt;
-&lt;p&gt;我们都知道哈希表的复杂度为&lt;code&gt;O(1)&lt;/code&gt;，那么如何设计其底层原理才能做到呢？我们不防假设不考虑复杂度的情况，如果想要实现一个简单的哈希表可以怎样设计呢？&lt;/p&gt;
-&lt;h3 id=&#34;111-不合理的设计&#34;&gt;1.1.1. 不合理的设计&lt;/h3&gt;
-&lt;p&gt;假如我们有两个数组，其长度永远都是一样的，我们把这两个数组结合到一起作为一个 &lt;code&gt;键值对&lt;/code&gt; 的数据结构的实现，这样假如新增一个键值对，将键新增到对应的数组，值新增到另外一个数组，保证下标相同，那么是不是就是实现了一个 &lt;code&gt;map&lt;/code&gt; ？很明显这种做法是很笨的，因为如果这样做，那就根本不需要哈希表的出现了。&lt;/p&gt;
-&lt;p&gt;哈希表最重要的就是根据 &lt;code&gt;key&lt;/code&gt; 可以直接找到 &lt;code&gt;value&lt;/code&gt;，就像一张表，我们根据建找到值对应所在的位置，然后直接到对应位置拿到值就可以了。&lt;/p&gt;
-&lt;h3 id=&#34;112-设计过程&#34;&gt;1.1.2. 设计过程&lt;/h3&gt;
-&lt;p&gt;接下来我们就聊一下，如果是我，我会如何设计 map 的一个简单过程。首先我们知道，map 的一个主要特性就是根据 key 可以直接找到对应的 value，并且其复杂度为O(1)，我们第一个想到的就应该是计算机中内存地址，我们根据地址可以直接找到其对应的内存空间。那么问题就变成了我们如何把 key 做成一个 “指针” 用来直接找到对应 value。&lt;/p&gt;
-&lt;p&gt;map 的 key 可以是很多的数据类型，例如 string、int 等（每种语言可能有所不同）。那么我们需要把所有了类型的 key 都可以转换成我们的 “指针”，换句话说，我们需要把任意类型的 key 都可以转换成一个固定类型的 “指针”。这时候就需要我们的哈希函数上场了。哈希函数主要功能就是根据输入的任意内容来输出一个固定长度的数据，并且输入的数据不同，输出的数据也要不同（但是目前并没有这种完美的哈希函数）。这样我们就可以将 key 通过哈希函数生成固定长度的数据，并根据输出数据作为 “指针” 来找对应的 value。&lt;/p&gt;
-&lt;p&gt;既然我们目前没有完美的哈希函数，那我们可以再转换一下思路，我们可以将哈希函数的输出结果分类，某一类的 key 对应的 value 放到一起，同时保证每一类的 key 的个数有限制，这样根据哈希函数的结果到对应的 value 组中去查找，这样也是可以满足目前的需求的。&lt;/p&gt;
+&lt;h2 id=&#34;11-原理&#34;&gt;1.1 原理&lt;/h2&gt;
+&lt;p&gt;首先哈希表中第一个点就是哈希函数，也就是我们需要一个函数，根据我们的 key 计算出一个值，然后根据这个值可以直接找到对应的 value。因为我们的哈希表的一个作用就是 O(1) 复杂度找到 key 对应的 value。&lt;/p&gt;
+&lt;p&gt;完美的哈希函数是可以做到将任何一个 key 值都可以计算出一个唯一且固定大小的值，不幸的是目前世界上还没有这种完美的哈希函数。因此我们需要解决的另外一个问题就是哈希冲突的解决。&lt;/p&gt;
+&lt;h3 id=&#34;111-哈希冲突&#34;&gt;1.1.1 哈希冲突&lt;/h3&gt;
+&lt;p&gt;假如我们有两个不同的 key，通过哈希函数计算出的结果相同，那么我们是不能认为这两个 key 在 map 中是相同的，也就是如果出现了这种情况，我们的 map 结构是可以解决这个问题的。目前解决办法有很多，这里只说三个比较常见的解决方案：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;开放地址法（Open Addressing）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;写入时：假如 key &lt;code&gt;Alice&lt;/code&gt; 与 &lt;code&gt;Bob&lt;/code&gt; 通过哈希函数计算出结果冲突。当 map 中已经存在 key &lt;code&gt;Alice&lt;/code&gt;，再写入 key 为 &lt;code&gt;Bob&lt;/code&gt;时，发现哈希结果对应位置已经存在 &lt;code&gt;Alice&lt;/code&gt;，此时在 &lt;code&gt;Alice&lt;/code&gt; 位置之后再寻找位置，一直找到为空的位置，将 &lt;code&gt;Bob&lt;/code&gt; 写入。&lt;/li&gt;
+&lt;li&gt;读取时：此时 map 中已存在 key &lt;code&gt;Alice&lt;/code&gt;、&lt;code&gt;Bob&lt;/code&gt;，且哈希结果相同，此时想查找 &lt;code&gt;Bob&lt;/code&gt; 对应 value 时，先计算 &lt;code&gt;Bob&lt;/code&gt; 哈希结果，再通过哈希结果在 map 中查找位置，此时由于和 &lt;code&gt;Alice&lt;/code&gt; 哈希结果相同，并且 &lt;code&gt;Alice&lt;/code&gt; 先于 &lt;code&gt;Bob&lt;/code&gt; 存入 map，所以会直接找到 &lt;code&gt;Alice&lt;/code&gt; 的位置，发现 key 是 Alice 不是 Bob，接着在 Alice 位置后面查找，直到找到 key Bob 或者找到空。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;再哈希法（Re-Hashing）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设计多个哈希函数，假如 Alice 与 Bob 计算哈希结果相同，那么用另外一个哈希函数来计算 Bob 的哈希值，这种方式来解决哈希冲突。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;链地址法（Separate Chaining）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;此方法将同一个哈希结果对应的位置想象成一个桶，如果多个 key 对应哈希结果相同，那么都放到同一个桶中，并且桶中元素使用链表结构存储。&lt;/li&gt;
+&lt;li&gt;写入时：Alice 于 Bob 哈希结果相同，此时 map 已经有 Alice，再写入 Bob 时，发现对应哈希结果位置已经存在了 Alice，此时在当前桶中的 Alice 后链接一个 Bob，此时哈希结果对应的桶就存在了两个元素 Alice 与 Bob。&lt;/li&gt;
+&lt;li&gt;读取时：读取 Bob key 时，发现对应哈希结果的桶中第一个元素是 Alice，此时在桶中按链表顺序挨个查找，直到 key 相同或者空。&lt;/li&gt;
+&lt;li&gt;装载因子：此方案存在一个问题，当一个桶中元素过多时，其复杂度将增加，极端情况下就变成了链表。所以我们会限制在一个桶中元素的个数。这样在一个桶中元素过多时，需要生成新的桶。
+&lt;ul&gt;
+&lt;li&gt;装载因子 = 元素总量 / 桶总个数&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;在 Go 语言中，map 使用的是链地址法。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-go-中-map分析&#34;&gt;2 Go 中 map分析&lt;/h1&gt;
+&lt;h2 id=&#34;21-map-数据结构&#34;&gt;2.1 map 数据结构&lt;/h2&gt;
+&lt;p&gt;map 的源码位于 src/runtime/map.go 文件中，结构如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;hmap&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;count&lt;/span&gt;     &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// 当前 map 中元素数量
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;flags&lt;/span&gt;     &lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;B&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;// 当前 buckets 数量，2^B 等于 buckets 个数
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;noverflow&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;uint16&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// approximate number of overflow buckets; see incrnoverflow for details
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;hash0&lt;/span&gt;     &lt;span style=&#34;color:#66d9ef&#34;&gt;uint32&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// 哈希种子
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;buckets&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;unsafe&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Pointer&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// buckets 数组指针
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;oldbuckets&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unsafe&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Pointer&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// 扩容时保存之前 buckets 数据。
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;nevacuate&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// progress counter for evacuation (buckets less than this have been evacuated)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;extra&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;mapextra&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// optional fields
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// 每一个 bucket 的结构，即 hmap 中 buckets 指向的数据。
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bmap&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;tophash&lt;/span&gt; [&lt;span style=&#34;color:#a6e22e&#34;&gt;bucketCnt&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// 编译期间重构此结构
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bmap&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;topbits&lt;/span&gt;  [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;keys&lt;/span&gt;     [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#a6e22e&#34;&gt;keytype&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;values&lt;/span&gt;   [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#a6e22e&#34;&gt;valuetype&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;pad&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;overflow&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;关于 hmap 的结构这里已经将很多重要的字段列出来了，其中最重要的就是 buckets 这一部分，根据上面我们说过的链地址法可知，对同一类 key （哈希结果相同）放入相同的桶中。此时每一个桶还有另外一个字段 overflow，也就是当前桶装不下就会再创建新的桶。这就是 Go 中 map 的主要实现方法，更详细的部分我们接下来一点一点聊。&lt;/p&gt;
+&lt;h2 id=&#34;22-源码&#34;&gt;2.2 源码&lt;/h2&gt;
+&lt;p&gt;map 的源码位于 src/runtime/map.go 文件中。关于 map 的操作的具体实现在这里都可以找到：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;创建map：&lt;code&gt;func makemap(t *maptype, hint int, h *hmap) *hmap &lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;访问某个 key：
+&lt;ul&gt;
+&lt;li&gt;返回结果只包括 value：&lt;code&gt;func mapaccess1(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer &lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;返回结果包括 bool 结果：&lt;code&gt;func mapaccess2(t *maptype, h *hmap, key unsafe.Pointer) (unsafe.Pointer, bool) &lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;存入 key：&lt;code&gt;func mapassign(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;删除 key：&lt;code&gt;func mapdelete(t *maptype, h *hmap, key unsafe.Pointer) &lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;本篇文章不会带大家将源码通读一遍，但是会将其实现过程以图或者文字形式分析出来，但是建议大家有时间可以根据本篇文章的内容再去自己读一遍源码，如果我这里将所有源码都解释一遍，估计朋友们很快就又忘记了，还不如记住实现流程。所以本文更多的是讲 map 每个操作的过程图，以及其中的部分要点，而不是将源码一行一行的解释出来。&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&#34;3-图解-map&#34;&gt;3. 图解 map&lt;/h1&gt;
+&lt;h2 id=&#34;31-创建map&#34;&gt;3.1 创建map&lt;/h2&gt;
+&lt;p&gt;我们已经知道 map 的数据结构，其实 map 的初始化也无非就是填充各个字段而已：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一个就是 hash0 字段，此处会随机给一个种子，用在哈希函数计算时使用。关于哈希函数在运行时，Go 会检测 cpu 是否支持 aes，支持则使用 aes hash，否则使用 memhash。位于路径：&lt;code&gt;src/runtime/alg.go&lt;/code&gt; 下的 &lt;code&gt;alginit()&lt;/code&gt; 函数。&lt;/li&gt;
+&lt;li&gt;根据参数 &lt;code&gt;hint&lt;/code&gt;计算需要的桶数。&lt;/li&gt;
+&lt;li&gt;根据桶的数量创建一个连续的空间来存储桶的数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;大体上就是这么一个过程，关于源码中的一些检查项这里就不多废话了，并且源码注释也写的很清楚了。&lt;/p&gt;
+&lt;p&gt;下面这个图就是一个 map 的主要相关存储结构：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;images/map1.png&#34; alt=&#34;map&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;32-定位-key&#34;&gt;3.2 定位 key&lt;/h2&gt;
+&lt;p&gt;一个 map 初始化后基本的结构我们已经知道了，接下来就是我们在这个结构中如何添加一个 key 对应的 value。&lt;/p&gt;
+&lt;p&gt;我们再看一遍每一个桶的结构：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bmap&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;topbits&lt;/span&gt;  [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;keys&lt;/span&gt;     [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#a6e22e&#34;&gt;keytype&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;values&lt;/span&gt;   [&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;]&lt;span style=&#34;color:#a6e22e&#34;&gt;valuetype&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;pad&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;overflow&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里的 keys 与 values 字段就是存储 key 和 value 的真正内存的地方，我们可以看到这里每个都是长度为8的数组，也就是说一个桶内存了两个数组，一个存的是 key 列表，另一个是 value 列表，并且每个数据的大小都是8。那么当有第9个元素入桶时，我们就需要创建新的桶了，也就是 overflow 字段指向一个新的 bucket（bmap 结构）。&lt;/p&gt;
+&lt;p&gt;还有一个字段就是 topbits，也是一个长度为8的数组，其实看到这里我们应该想到，这三个数组长度都相同应该有对应关系了，也就是说 topbits 数组中第一个元素是一个8位大小，我们称之为 高8位，这是我们再回想一下哈希函数，我们的哈希函数的结果取高8位，然后存入 topbits 数组，然后其在数组的索引我们称之为i，那么我们就可以在 keys 和 values 数组的第i个位置存储数据了。&lt;/p&gt;
+&lt;p&gt;上面是在已知一个桶中添加或者修改元素，那么我们该如何查找这个桶呢？&lt;/p&gt;
+&lt;p&gt;我们知道在 hmap 中有 buckets 字段，其指向 []bmap 数组。那么我们就需要通过 key 找到对应的 bmap 在 []bmap 中的位置。关于此处的计算大家感兴趣的可以看一下源码，这里就不详细说每一个运算符都是怎么运算的，只说一下大致的流程：hmap 中有一个 B 字段，根据字段 B 的值，以及 key 的 hash 值，计算出目标桶在 []bmap 中的位置（其实就是取了 key 的哈希的后几位作为数组的下标即可）。&lt;/p&gt;
+&lt;p&gt;现在我们根据一个 key 可以在 hmap 中的 buckets 字段找到对应的 bmap 对象，同时在 bmap 中根据 key 哈希的高八位找到其在 keys 与 values 数组中的位置。这里我们还没有说如果有 overflow 的情况。其实不说想必大家也能猜到了，在我们定位到一个 bmap 时，是不知道其一共有多少个溢出桶的：**假设我们有桶 A，A 的 overflow 字段指向桶 B，B 的 overflow 指向桶 C，假设我们此时根据 key 的哈希找到了桶 A，然后 for 循环遍历桶中的 topbits 数组，如果某个高8位的哈希与我们想找的 key 的哈希的高8位相同，就去对应位置的 keys 数组查找对应的 key1，假如 key1 与我们的目标 key 相等，那么直接返回其对应 values 数组中的 value 即可。如果key1 与我们的目标 key 不相等，接着变量桶中其他元素。假设桶中所有元素遍历后没有找到相同的 key，那么此时就要到 A 桶的溢出桶 B 再去遍历，如果 B 中依然找不到再去桶 C 中查找。**此时大家可以思考一下如果是你，你会如何实现这部分代码呢？你实现的和 Go 的源码是否一样呢？&lt;/p&gt;
+&lt;p&gt;当我们知道了上面定位 key 的过程，对于 key 的增删改查过程也就不多说了，因为核心的我们已经掌握了，现在大家可以去看一下源码了，这时大家看源码必定事半功倍。&lt;/p&gt;
 </description>
     </item>
     
