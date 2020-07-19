@@ -9,7 +9,37 @@
   
   <url>
     <loc>https://godeamon.github.io/</loc>
-    <lastmod>2020-06-17T20:45:43+08:00</lastmod>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/categories/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/tags/go/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/categories/go/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/go-sysmon/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/post/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://godeamon.github.io/tags/</loc>
+    <lastmod>2020-07-19T15:14:51+08:00</lastmod>
   </url>
   
   <url>
@@ -23,33 +53,8 @@
   </url>
   
   <url>
-    <loc>https://godeamon.github.io/categories/</loc>
-    <lastmod>2020-06-17T20:45:43+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://godeamon.github.io/post/paxos/</loc>
     <lastmod>2020-06-17T20:45:43+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.github.io/post/</loc>
-    <lastmod>2020-06-17T20:45:43+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.github.io/tags/</loc>
-    <lastmod>2020-06-17T20:45:43+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.github.io/tags/go/</loc>
-    <lastmod>2020-06-14T20:22:15+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://godeamon.github.io/categories/go/</loc>
-    <lastmod>2020-06-14T20:22:15+08:00</lastmod>
   </url>
   
   <url>
