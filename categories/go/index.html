@@ -15,7 +15,7 @@
 <link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
 <link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
 
-<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1595147822" />
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1624783542" />
 
 
 
@@ -24,7 +24,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://godeamon.github.io/categories/go/" />
 <meta property="og:image" content="https://godeamon.github.io/gopher.png"/>
-<meta property="og:updated_time" content="2020-07-19T15:14:51+08:00" />
+<meta property="og:updated_time" content="2021-06-27T16:37:23+08:00" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://godeamon.github.io/gopher.png"/>
@@ -70,6 +70,55 @@
     <div class="post-info">
         <a href="https://godeamon.github.io/categories">To all categories</a>
     </div>
+    
+        <article class="post-list">
+    <header>
+        <h1 class="post-title draft"><a href="/post/sdk_1/">如何使用 Go 语言写区块链的 SDK （一）</a></h1>
+    </header>
+
+    <div class="content post-summary">
+        “ 最近在使用 Go 语言写一个区块链的 SDK，从设计到上线总结了其中的一些问题以及思考，如果你也在写 SDK 或者要写 SDK，希望这篇文章可以帮到你。这篇文件不会区分是否是区块链的 SDK，下一篇文章主要写区块链的 SDK 与普通系统 SDK 的一些区别以及相关思考”
+当写一个 SDK 时，第一需要考虑的问题应该是这个 SDK 的功能，或者说这个 SDK 是给什么样的用户来用，或者用户使用这个 SDK 能做什么。弄明白了这个问题后才可以开始动手。
+一个系统的接口肯定是知道的，但有些情况并不是一个接口就能够完成一个用户的操作或者需求，此时需要系统的多个接口组合调用才可以，同时在调用多个接口时，有很多逻辑是需要在客户端完成的，那么接口调用以及用户的逻辑就需要在 SDK 中完成。所以简单来说，一个 SDK 的基础功能就是系统的接口调用与用户的部分逻辑（当然这只是我抽象出来的，实际情况 SDK 有很多种）。
+我个人把 SDK 的出生过程总结如下：
+ SDK 功能确认； 系统接口逻辑确认； SDK 接口设计； SDK 架构设计； SDK 使用文档或者示例代码； 测试；  接下来就分这七步来聊一聊如何开发一个易用、可靠的 SDK。
+1. SDK 功能确认 某个系统的 SDK 会有官方的 SDK 也有其他人贡献的 SDK，比如有的企业或者开发者觉得官方提供的 SDK 功能不全，或者使用不方便，满足不了现在的需求.
+而且官方很大几率不会再开发一个专门的 SDK 来满足个别的需求，所以开发者有可能根据系统的接口来开发或者在官方 SDK 基础上添加功能。
+对于这种现象的出现，我觉得主要原因在于官方的 SDK 在设计之初就是存在问题的，或者说 SDK 的功能确认是错误。
+系统可能有几十个接口，但是对于用户有用的或者最常用的可能只有一半或者三分之一，所以 SDK 并不需要把所有的接口都支持，而是要把核心的功能筛选出来，这一点并不与上面提到的功能确认存在问题。
+    </div>
+
+    
+    
+
+
+<div class="post-info">
+    
+        <div class="post-date">2021-06-27</div>
+    
+    <div class="post-taxonomies">
+        
+            <ul class="post-categories">
+                
+                    <li><a href="https://godeamon.github.io/categories/go">go</a></li>
+                
+                    <li><a href="https://godeamon.github.io/categories/blockchain">blockchain</a></li>
+                
+            </ul>
+            
+            
+                <ul class="post-tags">
+                    
+                        <li><a href="https://godeamon.github.io/tags/go">#go</a></li>
+                    
+                        <li><a href="https://godeamon.github.io/tags/blockchain">#blockchain</a></li>
+                    
+                </ul>
+        
+    </div>
+</div>
+
+</article>
     
         <article class="post-list">
     <header>
@@ -164,7 +213,7 @@
                 
                 
 
-                <p>© 李明磊, 2020<br>
+                <p>© 李明磊, 2021<br>
 Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
 </p>
 
