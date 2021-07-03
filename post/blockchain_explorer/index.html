@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>通用区块链浏览器引擎泛想 - Attitude is altitude</title>
+<meta name="description" content="区块链、Go">
+
+<link rel="icon" type="image/x-icon" href="https://godeamon.github.io/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="https://godeamon.github.io/favicon.png">
+
+<link rel="stylesheet" href="https://godeamon.github.io/css/style.css?rnd=1625319046" />
+
+
+
+<meta property="og:title" content="通用区块链浏览器引擎泛想" />
+<meta property="og:description" content="通用区块链浏览器引擎泛想 1.背景 目前区块链行业各种链横行，公链有 ethereum、bitcoin、filecoin 等，联盟链有 fabric、fisco bcos、XuperChain、ChainMaker 等，而且每个链的浏览器都需要单独开发，因为每个链的区块、交易、账户体系、链上接口都是不一样的，因此每个链都要有适用自己的浏览器，但是大多数浏览器的功能还是比较相同的，大多数都是存储区块、交易、账户、合约、组织、节点等信息，但是对于公链和联盟路的区别比较大，比如公链大多数都有原生代币以及允许发行代币，联盟链甚至没有代币，并且还有节点准入、业务隔离等特点。但从功能上来说，区块链离不开区块、交易、账户、合约这些东西，因此开发一款通用的区块链浏览器引擎还是很有必要的。
+2.什么是区块链浏览器引擎 区块链浏览器的功能很简单，都是将链上的数据存储到数据库，同时提供数据查询的接口，比如查询区块信息，合约信息，账户交易等。那么这部分功能可以做成通用的。通用区块链浏览器引擎最难的一点是如何适配所有的区块链。
+不从实现角度说，只从功能来说，通用区块链浏览器引擎就是开发者可以在此基础上非常简单的开发出自己区块链浏览器，也就是说，开发者只需要做很少量、很简单的开发就可以适配一个区块链。
+3.难点 先说如何针对一条链开发对应的浏览器。首先要知道链的数据结构，包括区块、交易、账户体系、合约相关数据结构、代币、组织等等。然后确定浏览器的功能。之后选择爬取链上数据的方式，比如按照区块高度爬取、事件订阅方式等等。之后就可以编码了。简而言之，就是确定区块链数据结构、确定浏览器功能、确定链上接口、确定浏览器程序架构（接口、数据库等）。
+对于上面的四点，其中确定浏览器程序结构算是最简单的，只有数据库的选择会有一点问题，因为大多数数据库都能满足需求。
+最难得是区块链数据结构与链上接口以及浏览器的功能。也就是在开发者使用区块链浏览器引擎时，如何最简单的告诉引擎区块链的数据结构和链上的接口，以及想要的功能。举一个例子，在联盟链中，fabric 有 channel 和 组织，XuperChain 平行链和群组，fisco bocos 有群组和 channel，ChainMaker 有平行链和组织，虽然功能类似，但是引擎如何适配这些概念是一个难点。另外我们不知道接下来还会出现什么样的奇怪的概念，那么引擎该如何做呢？这是通用区块链浏览器引擎的最大难点！
+3.1 接口类型 目前大多数区块链对外的接口有两种：json-rpc 和 grpc，json-rpc 是可以使用 http 或者 ws 的 json 格式数据 rpc，grpc 底层使用的是 http2，可以通过这些接口查询链上信息。如何统一呢？
+3.2 数据结构 对于链上的区块、交易、合约等数据，都是 go 中的 struct。
+第一每个链的结构不一样，第二每个链上的概念不统一，而且后续可能有很多新的概念。
+这个问题如何解决呢？
+4.解决方案（第一版） 4.1接口解决方案 对于各种类型的接口，没必要全部实现，也就是不需要在引擎中实现 json-rpc、grpc、https 等所有接口，只需要在引擎中定义一个接口，使用引擎的开发者实现这个接口，也就是把客户端与服务端的连接实现这个接口，比如引擎有接口 ClientInterface
+type ClientInterface interface { QueryBlockByHeight() QUeryTxByID() ...... } 开发者将真正的与链上的连接封装一下，同时实现 ClientInterface 接口，那么引擎可以使用这个对象去做链上的数据查询。
+4.2数据结构解决方案 对于数据结构同样采用接口的方式，区块结构举例，定义 Blocker 接口
+type Blocker interface { Bytes() Load() ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://godeamon.github.io/post/blockchain_explorer/" />
+<meta property="og:image" content="https://godeamon.github.io/gopher.png"/>
+<meta property="article:published_time" content="2021-07-03T21:29:06+08:00" />
+<meta property="article:modified_time" content="2021-07-03T21:29:06+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://godeamon.github.io/gopher.png"/>
+
+<meta name="twitter:title" content="通用区块链浏览器引擎泛想"/>
+<meta name="twitter:description" content="通用区块链浏览器引擎泛想 1.背景 目前区块链行业各种链横行，公链有 ethereum、bitcoin、filecoin 等，联盟链有 fabric、fisco bcos、XuperChain、ChainMaker 等，而且每个链的浏览器都需要单独开发，因为每个链的区块、交易、账户体系、链上接口都是不一样的，因此每个链都要有适用自己的浏览器，但是大多数浏览器的功能还是比较相同的，大多数都是存储区块、交易、账户、合约、组织、节点等信息，但是对于公链和联盟路的区别比较大，比如公链大多数都有原生代币以及允许发行代币，联盟链甚至没有代币，并且还有节点准入、业务隔离等特点。但从功能上来说，区块链离不开区块、交易、账户、合约这些东西，因此开发一款通用的区块链浏览器引擎还是很有必要的。
+2.什么是区块链浏览器引擎 区块链浏览器的功能很简单，都是将链上的数据存储到数据库，同时提供数据查询的接口，比如查询区块信息，合约信息，账户交易等。那么这部分功能可以做成通用的。通用区块链浏览器引擎最难的一点是如何适配所有的区块链。
+不从实现角度说，只从功能来说，通用区块链浏览器引擎就是开发者可以在此基础上非常简单的开发出自己区块链浏览器，也就是说，开发者只需要做很少量、很简单的开发就可以适配一个区块链。
+3.难点 先说如何针对一条链开发对应的浏览器。首先要知道链的数据结构，包括区块、交易、账户体系、合约相关数据结构、代币、组织等等。然后确定浏览器的功能。之后选择爬取链上数据的方式，比如按照区块高度爬取、事件订阅方式等等。之后就可以编码了。简而言之，就是确定区块链数据结构、确定浏览器功能、确定链上接口、确定浏览器程序架构（接口、数据库等）。
+对于上面的四点，其中确定浏览器程序结构算是最简单的，只有数据库的选择会有一点问题，因为大多数数据库都能满足需求。
+最难得是区块链数据结构与链上接口以及浏览器的功能。也就是在开发者使用区块链浏览器引擎时，如何最简单的告诉引擎区块链的数据结构和链上的接口，以及想要的功能。举一个例子，在联盟链中，fabric 有 channel 和 组织，XuperChain 平行链和群组，fisco bocos 有群组和 channel，ChainMaker 有平行链和组织，虽然功能类似，但是引擎如何适配这些概念是一个难点。另外我们不知道接下来还会出现什么样的奇怪的概念，那么引擎该如何做呢？这是通用区块链浏览器引擎的最大难点！
+3.1 接口类型 目前大多数区块链对外的接口有两种：json-rpc 和 grpc，json-rpc 是可以使用 http 或者 ws 的 json 格式数据 rpc，grpc 底层使用的是 http2，可以通过这些接口查询链上信息。如何统一呢？
+3.2 数据结构 对于链上的区块、交易、合约等数据，都是 go 中的 struct。
+第一每个链的结构不一样，第二每个链上的概念不统一，而且后续可能有很多新的概念。
+这个问题如何解决呢？
+4.解决方案（第一版） 4.1接口解决方案 对于各种类型的接口，没必要全部实现，也就是不需要在引擎中实现 json-rpc、grpc、https 等所有接口，只需要在引擎中定义一个接口，使用引擎的开发者实现这个接口，也就是把客户端与服务端的连接实现这个接口，比如引擎有接口 ClientInterface
+type ClientInterface interface { QueryBlockByHeight() QUeryTxByID() ...... } 开发者将真正的与链上的连接封装一下，同时实现 ClientInterface 接口，那么引擎可以使用这个对象去做链上的数据查询。
+4.2数据结构解决方案 对于数据结构同样采用接口的方式，区块结构举例，定义 Blocker 接口
+type Blocker interface { Bytes() Load() ."/>
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header> 
+            
+                <h1 class="site-header">
+    <a href="/">Attitude is altitude</a>
+</h1>
+<nav>
+    
+    
+    <a class="" href="https://godeamon.github.io/post/about-me" title="About">About</a>
+    
+    <a class="" href="https://godeamon.github.io/post/" title="Archive">Archive</a>
+    
+    <a class="" href="https://godeamon.github.io/post/plan" title="Plan">Plan</a>
+    
+    <a class="" href="https://godeamon.github.io/post/reading" title="Reading">Reading</a>
+    
+</nav>
+
+            
+        </header>
+        <main id="main" tabindex="-1"> 
+            
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title draft">通用区块链浏览器引擎泛想</h1>
+        </header>
+        <div class="content">
+            <h1 id="通用区块链浏览器引擎泛想">通用区块链浏览器引擎泛想</h1>
+<h1 id="1背景">1.背景</h1>
+<p>目前区块链行业各种链横行，公链有 ethereum、bitcoin、filecoin 等，联盟链有 fabric、fisco bcos、XuperChain、ChainMaker 等，而且每个链的浏览器都需要单独开发，因为每个链的区块、交易、账户体系、链上接口都是不一样的，因此每个链都要有适用自己的浏览器，但是大多数浏览器的功能还是比较相同的，大多数都是存储区块、交易、账户、合约、组织、节点等信息，但是对于公链和联盟路的区别比较大，比如公链大多数都有原生代币以及允许发行代币，联盟链甚至没有代币，并且还有节点准入、业务隔离等特点。但从功能上来说，区块链离不开区块、交易、账户、合约这些东西，因此开发一款通用的区块链浏览器引擎还是很有必要的。</p>
+<h1 id="2什么是区块链浏览器引擎">2.什么是区块链浏览器引擎</h1>
+<p>区块链浏览器的功能很简单，都是将链上的数据存储到数据库，同时提供数据查询的接口，比如查询区块信息，合约信息，账户交易等。那么这部分功能可以做成通用的。通用区块链浏览器引擎最难的一点是<strong>如何适配所有的区块链</strong>。</p>
+<p>不从实现角度说，只从功能来说，通用区块链浏览器引擎就是<strong>开发者可以在此基础上非常简单的开发出自己区块链浏览器，也就是说，开发者只需要做很少量、很简单的开发就可以适配一个区块链</strong>。</p>
+<h1 id="3难点">3.难点</h1>
+<p>先说如何针对一条链开发对应的浏览器。首先要知道链的数据结构，包括区块、交易、账户体系、合约相关数据结构、代币、组织等等。然后确定浏览器的功能。之后选择爬取链上数据的方式，比如按照区块高度爬取、事件订阅方式等等。之后就可以编码了。简而言之，就是<strong>确定区块链数据结构、确定浏览器功能、确定链上接口、确定浏览器程序架构（接口、数据库等）</strong>。</p>
+<p>对于上面的四点，其中确定浏览器程序结构算是最简单的，只有数据库的选择会有一点问题，因为大多数数据库都能满足需求。</p>
+<p>最难得是区块链数据结构与链上接口以及浏览器的功能。也就是在开发者使用区块链浏览器引擎时，如何最简单的告诉引擎区块链的数据结构和链上的接口，以及想要的功能。举一个例子，在联盟链中，fabric 有 channel 和 组织，XuperChain 平行链和群组，fisco bocos 有群组和 channel，ChainMaker 有平行链和组织，虽然功能类似，但是引擎如何适配这些概念是一个难点。另外我们不知道接下来还会出现什么样的奇怪的概念，那么引擎该如何做呢？这是通用区块链浏览器引擎的最大难点！</p>
+<h2 id="31-接口类型">3.1 接口类型</h2>
+<p>目前大多数区块链对外的接口有两种：json-rpc 和 grpc，json-rpc 是可以使用 http 或者 ws 的 json 格式数据 rpc，grpc 底层使用的是 http2，可以通过这些接口查询链上信息。如何统一呢？</p>
+<h2 id="32-数据结构">3.2 数据结构</h2>
+<p>对于链上的区块、交易、合约等数据，都是 go 中的 struct。</p>
+<p>第一每个链的结构不一样，第二每个链上的概念不统一，而且后续可能有很多新的概念。</p>
+<p>这个问题如何解决呢？</p>
+<h1 id="4解决方案第一版">4.解决方案（第一版）</h1>
+<h2 id="41接口解决方案">4.1接口解决方案</h2>
+<p>对于各种类型的接口，没必要全部实现，也就是不需要在引擎中实现 json-rpc、grpc、https 等所有接口，只需要在引擎中定义一个接口，使用引擎的开发者实现这个接口，也就是把客户端与服务端的连接实现这个接口，比如引擎有接口 ClientInterface</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ClientInterface</span> <span style="color:#66d9ef">interface</span> {
+	<span style="color:#a6e22e">QueryBlockByHeight</span>()
+	<span style="color:#a6e22e">QUeryTxByID</span>()
+	<span style="color:#f92672">......</span>
+}
+</code></pre></div><p>开发者将真正的与链上的连接封装一下，同时实现 ClientInterface 接口，那么引擎可以使用这个对象去做链上的数据查询。</p>
+<h2 id="42数据结构解决方案">4.2数据结构解决方案</h2>
+<p>对于数据结构同样采用接口的方式，区块结构举例，定义 Blocker 接口</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Blocker</span> <span style="color:#66d9ef">interface</span> {
+	<span style="color:#a6e22e">Bytes</span>()
+	<span style="color:#a6e22e">Load</span>()
+	<span style="color:#f92672">......</span>
+}
+</code></pre></div><p>这样在链上查询数据之后，通过 Blocker 接口进行序列化和反序列化以等操作。</p>
+<p><strong>这种方式有一个问题时开发者使用引擎时还需要一定量的编码，如何减少编码量是一个需要考虑的问题。</strong></p>
+
+        </div>
+        
+
+
+<div class="post-info">
+    
+        <div class="post-date">2021-07-03</div>
+    
+    <div class="post-taxonomies">
+        
+            
+                <ul class="post-tags">
+                    
+                        <li><a href="https://godeamon.github.io/tags/blockchain">#blockchain</a></li>
+                    
+                </ul>
+        
+    </div>
+</div>
+
+    </article>
+
+    
+
+    
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+        </main>
+        <footer>
+            
+                
+                
+
+                <p>© 李明磊, 2021<br>
+Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/mitrichius/hugo-theme-anubis">Anubis</a>.
+</p>
+
+            
+        </footer>
+    </div>
+</body>
+</html>
